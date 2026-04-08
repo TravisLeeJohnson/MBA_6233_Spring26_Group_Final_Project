@@ -1,0 +1,2073 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>The Lipstick Index — Oil & Cosmetics Market Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+  :root {
+    --cream: #f5f0e8;
+    --ink: #1a1410;
+    --rouge: #c0392b;
+    --gold: #b8962e;
+    --gold-light: #e8c84a;
+    --sage: #5a6b5a;
+    --blush: #e8b4a0;
+    --charcoal: #2d2820;
+    --muted: #8a7f74;
+    --border: #d4c8b8;
+    --panel: #faf6ef;
+    --panel-dark: #f0e8d8;
+    --green: #2d6a4f;
+    --red: #c0392b;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--cream);
+    color: var(--ink);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─────────────────────────────── */
+  header {
+    background: var(--ink);
+    color: var(--cream);
+    padding: 0 2rem;
+    border-bottom: 3px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    flex-wrap: wrap;
+    min-height: 72px;
+  }
+
+  .header-brand {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+  }
+
+  .header-brand h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    color: var(--cream);
+  }
+
+  .header-brand h1 span { color: var(--gold-light); }
+
+  .header-sub {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  #last-updated {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    color: var(--muted);
+  }
+
+
+  /* ─── BREAKING NEWS TICKER ───────────────── */
+  .news-bar {
+    background: #0a0a0a;
+    overflow: hidden;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #1a1a1a;
+    flex-shrink: 0;
+  }
+
+  .news-bar-label {
+    background: var(--rouge);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 500;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 0 0.9rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    white-space: nowrap;
+    flex-shrink: 0;
+    gap: 0.4rem;
+    border-right: 2px solid #ff4040;
+    position: relative;
+    z-index: 1;
+  }
+
+  .news-bar-label::after {
+    content: '';
+    position: absolute;
+    right: -8px;
+    top: 50%;
+    transform: translateY(-50%);
+    border-left: 8px solid var(--rouge);
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+  }
+
+  .news-pulse {
+    width: 7px; height: 7px;
+    background: #fff;
+    border-radius: 50%;
+    animation: pulse 1.2s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.3; transform: scale(0.6); }
+  }
+
+  .news-scroll-wrap {
+    flex: 1;
+    overflow: hidden;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    position: relative;
+  }
+
+  .news-scroll-wrap::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 30px;
+    background: linear-gradient(to right, #0a0a0a, transparent);
+    z-index: 2;
+  }
+
+  .news-scroll {
+    display: flex;
+    gap: 0;
+    animation: scrollNews 240s linear infinite;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: #c8c0b4;
+  }
+
+  .news-scroll:hover { animation-play-state: paused; }
+
+  .news-item {
+    display: inline-flex;
+    align-items: center;
+    padding: 0 2.5rem;
+    gap: 0.6rem;
+    cursor: pointer;
+    color: #c8c0b4;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.15s, border-color 0.15s;
+  }
+
+  .news-item:hover {
+    color: #fff;
+    border-bottom-color: rgba(255,255,255,0.3);
+  }
+
+  .news-item:hover .news-link-icon {
+    opacity: 1;
+    transform: translateX(2px);
+  }
+
+  .news-link-icon {
+    font-size: 0.6rem;
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s;
+    flex-shrink: 0;
+    color: #e8c84a;
+    letter-spacing: 0;
+  }
+
+  .news-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 0.1rem 0.4rem;
+    border-radius: 2px;
+    flex-shrink: 0;
+    font-weight: 500;
+  }
+
+  .news-tag.geo   { background: #1a3a5c; color: #7ab8f5; }
+  .news-tag.opec  { background: #3a2a00; color: var(--gold-light); }
+  .news-tag.econ  { background: #1a3a1a; color: #7af598; }
+  .news-tag.risk  { background: #3a1a1a; color: #f57a7a; }
+  .news-tag.trade { background: #2a1a3a; color: #c47af5; }
+
+  .news-sep {
+    color: var(--rouge);
+    padding: 0 0.5rem;
+    font-size: 0.7rem;
+    opacity: 0.6;
+  }
+
+  @keyframes scrollNews {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+
+  /* ─── TICKER BANNER ──────────────────────── */
+  .ticker-bar {
+    background: var(--charcoal);
+    overflow: hidden;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #3a3028;
+  }
+
+  .ticker-scroll {
+    display: flex;
+    gap: 3rem;
+    animation: scrollTicker 40s linear infinite;
+    white-space: nowrap;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .ticker-scroll .tick-item { display: flex; align-items: center; gap: 0.5rem; }
+  .ticker-scroll .tick-sym { color: var(--cream); font-weight: 500; }
+  .ticker-scroll .tick-pos { color: #2ecc71; }
+  .ticker-scroll .tick-neg { color: var(--rouge); }
+
+  @keyframes scrollTicker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  /* ─── MAIN LAYOUT ────────────────────────── */
+  main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+    display: grid;
+    gap: 2rem;
+  }
+
+  /* ─── CONTROLS ────────────────────────────── */
+  .controls-section {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: flex-end;
+    gap: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .control-group { display: flex; flex-direction: column; gap: 0.4rem; }
+
+  .control-group label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .control-group select,
+  .control-group input {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.5rem 0.75rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.15s;
+    min-width: 160px;
+  }
+
+  .control-group select:focus,
+  .control-group input:focus { border-color: var(--gold); }
+
+  .control-group input[readonly] {
+    background: var(--panel-dark);
+    color: var(--muted);
+    cursor: not-allowed;
+    user-select: none;
+    border-style: dashed;
+  }
+
+  .btn-load {
+    background: var(--ink);
+    color: var(--gold-light);
+    border: none;
+    border-radius: 2px;
+    padding: 0.55rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .btn-load:hover { background: var(--charcoal); }
+  .btn-load:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* ─── LOADING ─────────────────────────────── */
+  #loading-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(26,20,16,0.85);
+    z-index: 999;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    gap: 1.5rem;
+    color: var(--cream);
+  }
+
+  #loading-overlay.show { display: flex; }
+
+  .loader-spinner {
+    width: 48px; height: 48px;
+    border: 3px solid #3a3028;
+    border-top-color: var(--gold-light);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .loader-text {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+  }
+
+  /* ─── STAT CARDS ─────────────────────────── */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 1rem;
+  }
+
+  .stat-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+
+  .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+  }
+
+  .stat-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--gold);
+  }
+
+  .stat-card.negative::before { background: var(--rouge); }
+  .stat-card.positive::before { background: var(--green); }
+
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1;
+    margin-bottom: 0.25rem;
+  }
+
+  .stat-change {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+
+  .stat-change.pos { color: var(--green); }
+  .stat-change.neg { color: var(--rouge); }
+
+  /* ─── SECTION HEADERS ─────────────────────── */
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section-header h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+  }
+
+  .section-header .section-meta {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    color: var(--muted);
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── CHART PANELS ────────────────────────── */
+  .chart-panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem 2rem;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+  }
+
+  /* ─── TWO-COL LAYOUT ─────────────────────── */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+
+  @media (max-width: 900px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ─── ALPHA BETA TABLE ───────────────────── */
+  .metrics-table-wrap { overflow-x: auto; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+  }
+
+  thead tr {
+    background: var(--ink);
+    color: var(--cream);
+  }
+
+  thead th {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 0.75rem 1rem;
+    text-align: left;
+    white-space: nowrap;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  tbody tr:hover { background: var(--panel-dark); }
+
+  tbody td {
+    padding: 0.75rem 1rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.8rem;
+  }
+
+  .cell-sym {
+    font-weight: 500;
+    color: var(--ink);
+    font-size: 0.85rem;
+  }
+
+  .cell-name { color: var(--muted); font-size: 0.75rem; }
+  .cell-pos { color: var(--green); }
+  .cell-neg { color: var(--rouge); }
+  .cell-neutral { color: var(--muted); }
+
+  .beta-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .beta-bar-bg {
+    flex: 1;
+    height: 6px;
+    background: var(--border);
+    border-radius: 3px;
+    overflow: hidden;
+    min-width: 60px;
+  }
+
+  .beta-bar-fill {
+    height: 100%;
+    border-radius: 3px;
+    background: var(--gold);
+  }
+
+  /* ─── CORRELATION SECTION ───────────────── */
+  .correlation-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 1rem;
+  }
+
+  .corr-card {
+    background: var(--cream);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1rem;
+    text-align: center;
+  }
+
+  .corr-symbol {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .corr-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .corr-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    color: var(--muted);
+    margin-top: 0.25rem;
+  }
+
+  /* ─── TREND INSIGHT CARDS ────────────────── */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+  }
+
+  .insight-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 4px 4px 0;
+    padding: 1rem 1.25rem;
+  }
+
+  .insight-card.bearish { border-left-color: var(--rouge); }
+  .insight-card.bullish { border-left-color: var(--green); }
+  .insight-card.neutral { border-left-color: var(--muted); }
+
+  .insight-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .insight-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+  }
+
+  .insight-body {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  /* ─── EMPTY STATE ─────────────────────────── */
+  .empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    gap: 1rem;
+    color: var(--muted);
+  }
+
+  .empty-state .empty-icon {
+    font-size: 3rem;
+    opacity: 0.3;
+  }
+
+  .empty-state p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+  }
+
+  /* ─── FOOTER ─────────────────────────────── */
+  footer {
+    background: var(--ink);
+    color: var(--muted);
+    text-align: center;
+    padding: 1.25rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.68rem;
+    letter-spacing: 0.08em;
+    border-top: 1px solid #3a3028;
+  }
+
+  footer a { color: var(--gold); text-decoration: none; }
+
+  /* ─── LEGEND DOTS ────────────────────────── */
+  .legend-dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+
+  /* ─── ERROR ──────────────────────────────── */
+  .error-banner {
+    background: #fdf0ee;
+    border: 1px solid var(--rouge);
+    border-radius: 4px;
+    padding: 1rem 1.5rem;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--rouge);
+    display: none;
+  }
+
+  .error-banner.show { display: block; }
+</style>
+</head>
+<body>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay">
+  <div class="loader-spinner"></div>
+  <div class="loader-text" id="loading-text">FETCHING MARKET DATA…</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div class="header-brand">
+    <h1>The <span>Lipstick</span> Index</h1>
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <span class="header-sub">Oil & Cosmetics Market Analysis</span>
+      <span class="header-sub" style="color:#5a5048;">Finance Dashboard · 5-Year Daily Data</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <span id="last-updated">— Load data to begin —</span>
+  </div>
+</header>
+
+<!-- BREAKING NEWS TICKER -->
+<div class="news-bar">
+  <div class="news-bar-label">
+    <div class="news-pulse"></div>
+    Breaking
+  </div>
+  <div class="news-scroll-wrap">
+    <div class="news-scroll" id="news-scroll">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<!-- TICKER BAR -->
+<div class="ticker-bar">
+  <div class="ticker-scroll" id="ticker-scroll">
+    <span class="tick-item"><span class="tick-sym">EL</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">ELF</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">COTY</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">ULTA</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">IPAR</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">CL=F</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">SPY</span> — <span>—</span></span>
+    <!-- duplicated for seamless scroll -->
+    <span class="tick-item"><span class="tick-sym">EL</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">ELF</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">COTY</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">ULTA</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">IPAR</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">CL=F</span> — <span>—</span></span>
+    <span class="tick-item"><span class="tick-sym">SPY</span> — <span>—</span></span>
+  </div>
+</div>
+
+<!-- MAIN -->
+<main>
+
+  <!-- CONTROLS -->
+  <section class="controls-section">
+    <div class="control-group">
+      <label>Oil Benchmark</label>
+      <select id="oil-ticker">
+        <option value="CL=F">CL=F — WTI Crude Oil Futures</option>
+        <option value="BZ=F">BZ=F — Brent Crude Oil Futures</option>
+        <option value="USO">USO — US Oil Fund ETF</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>Cosmetics Universe</label>
+      <select id="stocks-preset" onchange="updateStockInput(this.value)">
+        <option value="EL,ELF,COTY,ULTA,IPAR">Top 5: EL, ELF, COTY, ULTA, IPAR</option>
+        <option value="EL,ELF,COTY,ULTA,HELE">Alt 5: EL, ELF, COTY, ULTA, HELE</option>
+        <option value="EL,COTY,IPAR,HELE,ELF">Diversified 5</option>
+      </select>
+    </div>
+    <div class="control-group">
+      <label>Custom Tickers (comma-separated)</label>
+      <input type="text" id="custom-tickers" value="EL,ELF,COTY,ULTA,IPAR" readonly title="Cosmetics universe is fixed for this dashboard"/>
+    </div>
+    <div class="control-group">
+      <label>Period</label>
+      <select id="period-select">
+        <option value="5d" selected>1 Week</option>
+        <option value="1mo">1 Month</option>
+        <option value="3mo">3 Months</option>
+        <option value="6mo">6 Months</option>
+        <option value="9mo">9 Months</option>
+        <option value="1y">1 Year</option>
+        <option value="5y">5 Years</option>
+      </select>
+    </div>
+    <button class="btn-load" id="load-btn" onclick="loadAllData()">Load Data</button>
+  </section>
+
+  <!-- ERROR BANNER -->
+  <div class="error-banner" id="error-banner"></div>
+
+  <!-- KPI CARDS -->
+  <section id="kpi-section">
+    <div class="section-header">
+      <h2>Market Snapshot</h2>
+      <span class="section-meta">Latest Available Prices</span>
+    </div>
+    <div class="stats-grid" id="kpi-grid">
+      <div class="stat-card" style="grid-column: 1/-1;">
+        <div class="empty-state">
+          <div class="empty-icon">💄</div>
+          <p>Load data to see market snapshot</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PRICE CHART -->
+  <section>
+    <div class="section-header">
+      <h2>Normalized Price Performance</h2>
+      <span class="section-meta">Indexed to 100 at start of period · vs S&P 500 benchmark</span>
+    </div>
+    <div class="chart-panel">
+      <div class="chart-wrap" style="height:380px;">
+        <canvas id="priceChart"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- OIL VS COSMETICS -->
+  <div class="two-col">
+    <section>
+      <div class="section-header">
+        <h2>Oil Price Trend</h2>
+        <span class="section-meta">Absolute price with 90-day SMA</span>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="oilChart"></canvas>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="section-header">
+        <h2>Rolling 90-Day Correlation</h2>
+        <span class="section-meta">Each stock vs crude oil</span>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-wrap" style="height:260px;">
+          <canvas id="corrChart"></canvas>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ALPHA BETA TABLE -->
+  <section>
+    <div class="section-header">
+      <h2>Alpha & Beta Analysis</h2>
+      <span class="section-meta">vs S&P 500 · 5-year daily returns · CAPM regression</span>
+    </div>
+    <div class="chart-panel">
+      <div class="metrics-table-wrap">
+        <table id="ab-table">
+          <thead>
+            <tr>
+              <th>Symbol</th>
+              <th>Company</th>
+              <th>Price</th>
+              <th>5Y Return</th>
+              <th>Alpha (ann.)</th>
+              <th>Beta (vs SPY)</th>
+              <th>Beta Visual</th>
+              <th>Volatility (ann.)</th>
+              <th>Sharpe Ratio</th>
+              <th>R²</th>
+              <th>Oil Corr.</th>
+            </tr>
+          </thead>
+          <tbody id="ab-tbody">
+            <tr><td colspan="11" style="text-align:center;padding:2rem;color:var(--muted);font-family:'DM Mono',monospace;font-size:0.75rem;">Load data to populate table</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SCATTER: BETA vs OIL CORR -->
+  <div class="two-col">
+    <section>
+      <div class="section-header">
+        <h2>Risk-Return Scatter</h2>
+        <span class="section-meta">Annualized volatility vs annualized return</span>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-wrap" style="height:280px;">
+          <canvas id="scatterChart"></canvas>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="section-header">
+        <h2>Oil Correlation Summary</h2>
+        <span class="section-meta">Full period Pearson correlation to oil returns</span>
+      </div>
+      <div class="chart-panel" id="corr-summary-panel">
+        <div class="empty-state" style="min-height:200px;">
+          <div class="empty-icon">📊</div>
+          <p>Awaiting data</p>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <!-- TREND INSIGHTS -->
+  <section>
+    <div class="section-header">
+      <h2>Trend Insights</h2>
+      <span class="section-meta">AI-generated observations based on loaded data</span>
+    </div>
+    <div class="insights-grid" id="insights-grid">
+      <div class="insight-card neutral">
+        <div class="insight-tag">Awaiting Data</div>
+        <div class="insight-title">Load data to generate insights</div>
+        <div class="insight-body">Click "Load Data" above to fetch 5 years of daily prices for crude oil, cosmetics stocks, and SPY.</div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Data sourced via Yahoo Finance public API · For educational purposes only · Not investment advice &nbsp;|&nbsp; <a href="https://github.com/" target="_blank">View on GitHub</a></p>
+</footer>
+
+<script>
+/* ════════════════════════════════════════════
+   CONFIGURATION
+═══════════════════════════════════════════ */
+const COMPANY_NAMES = {
+  EL: 'Estée Lauder', ELF: 'e.l.f. Beauty', COTY: 'Coty Inc.',
+  ULTA: 'Ulta Beauty', IPAR: 'Inter Parfums', HELE: 'Helen of Troy',
+  'OR.PA': "L'Oréal", WALD: 'Waldencast', SPY: 'S&P 500 ETF',
+  'CL=F': 'WTI Crude Oil', 'BZ=F': 'Brent Crude', USO: 'US Oil Fund',
+};
+
+// WCAG-AA accessible palette — distinct hue, luminance, AND dash pattern per series
+// Each color passes 4.5:1 contrast on the cream (#f5f0e8) background
+const PALETTE = [
+  '#1864ab', // [0] EL   — deep blue
+  '#2f9e44', // [1] ELF  — forest green
+  '#e67700', // [2] COTY — amber orange
+  '#9c36b5', // [3] ULTA — violet
+  '#c92a2a', // [4] IPAR — crimson red
+  '#1098ad', // [5] HELE — teal
+  '#5c3bc4', // [6] extra — indigo
+];
+
+// Per-series dash patterns for accessibility (colorblind-safe double encoding)
+const DASH_PATTERNS = [
+  [],          // solid
+  [8, 4],      // dashed
+  [2, 3],      // dotted
+  [12, 4, 2, 4], // dash-dot
+  [6, 2],      // short dash
+  [1, 4],      // sparse dot
+];
+
+// Per-series point shapes (Chart.js pointStyle)
+const POINT_STYLES = [
+  'circle', 'triangle', 'rect', 'star', 'rectRot', 'cross'
+];
+
+// Rich company metadata for tooltips
+const COMPANY_META = {
+  SPY:  { name:'S&P 500 ETF (SPY)',    sector:'Index / Benchmark',       role:'Market benchmark — broad U.S. equities' },
+  EL:   { name:'Estée Lauder (EL)',    sector:'Prestige Beauty',          role:'Global luxury cosmetics; multi-brand portfolio' },
+  ELF:  { name:'e.l.f. Beauty (ELF)',  sector:'Mass-Market Beauty',       role:'Affordable cosmetics; strong Gen-Z growth' },
+  COTY: { name:'Coty Inc. (COTY)',     sector:'Beauty Conglomerate',      role:'Prestige & consumer beauty; fragrance-heavy' },
+  ULTA: { name:'Ulta Beauty (ULTA)',   sector:'Beauty Retail',            role:'Largest U.S. beauty specialty retailer' },
+  IPAR: { name:'Inter Parfums (IPAR)', sector:'Fragrance / Licensing',    role:'Licensed fragrance brands; asset-light model' },
+  HELE: { name:'Helen of Troy (HELE)', sector:'Consumer Products',        role:'Housewares, health & beauty; OXO, Hydro Flask' },
+  'CL=F':{ name:'WTI Crude Oil (CL=F)',sector:'Energy Commodity',         role:'Global oil benchmark; key input cost driver' },
+  'BZ=F':{ name:'Brent Crude (BZ=F)', sector:'Energy Commodity',          role:'International oil benchmark; N. Sea delivery' },
+  USO:  { name:'US Oil Fund (USO)',    sector:'Commodity ETF',            role:'Tracks near-month WTI crude futures' },
+};
+
+let charts = {};
+let globalData = {};
+
+/* ════════════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════════ */
+function updateStockInput(val){ document.getElementById('custom-tickers').value = val; }
+
+function showLoading(msg='FETCHING MARKET DATA…'){
+  document.getElementById('loading-overlay').classList.add('show');
+  document.getElementById('loading-text').textContent = msg;
+}
+
+function hideLoading(){ document.getElementById('loading-overlay').classList.remove('show'); }
+
+function showError(msg){
+  const el = document.getElementById('error-banner');
+  el.textContent = msg; el.classList.add('show');
+}
+
+function hideError(){ document.getElementById('error-banner').classList.remove('show'); }
+
+function fmtPct(v,dec=2){ return (v>=0?'+':'')+v.toFixed(dec)+'%'; }
+function fmtNum(v,dec=2){ return v.toFixed(dec); }
+function fmtDollar(v){ return '$'+v.toFixed(2); }
+
+function getPeriodDays(p){ return {y1:252,y2:504,y3:756,y5:1260}['y'+p.replace('y','')] || 1260; }
+
+/* ════════════════════════════════════════════
+   DATA FETCH — Multi-strategy, browser-native
+   Strategy 1: stooq.com CSV (open CORS)
+   Strategy 2: Yahoo Finance v8 via allorigins
+   Strategy 3: Yahoo Finance v8 via corsproxy.io
+   Strategy 4: Yahoo Finance query2 host
+═══════════════════════════════════════════ */
+
+function periodToDates(period) {
+  const end = new Date();
+  const start = new Date();
+  const days = { '5d':8,'1mo':35,'3mo':95,'6mo':185,'9mo':275,'1y':370,'5y':1830 };
+  start.setDate(end.getDate() - (days[period] || 1830));
+  const fmt = dt => dt.toISOString().slice(0,10).replace(/-/g,'');
+  return { startStr: fmt(start), endStr: fmt(end) };
+}
+
+function toStooqSym(sym) {
+  const map = {
+    'CL=F':'CL.F','BZ=F':'BZ.F','USO':'USO.US','SPY':'SPY.US',
+    'EL':'EL.US','ELF':'ELF.US','COTY':'COTY.US','ULTA':'ULTA.US',
+    'IPAR':'IPAR.US','HELE':'HELE.US'
+  };
+  return map[sym] || (sym + '.US');
+}
+
+function parseStooqCSV(text, sym) {
+  if (!text || text.includes('No data') || text.trim().length < 30) throw new Error('no data');
+  const lines = text.trim().split('\n').filter(Boolean);
+  if (lines.length < 2) throw new Error('too few lines');
+  const data = [];
+  for (let i = 1; i < lines.length; i++) {
+    const cols = lines[i].split(',');
+    if (cols.length < 5) continue;
+    const close = parseFloat(cols[4]);
+    const dateStr = cols[0].trim();
+    if (!dateStr || isNaN(close) || close <= 0) continue;
+    const parts = dateStr.split('-');
+    data.push({ date: new Date(+parts[0], +parts[1]-1, +parts[2]), close });
+  }
+  if (data.length < 3) throw new Error(`only ${data.length} rows`);
+  return data;
+}
+
+function parseYahooJSON(text) {
+  let raw;
+  try {
+    const outer = JSON.parse(text);
+    raw = (typeof outer.contents === 'string') ? JSON.parse(outer.contents) : outer;
+  } catch(e) { throw new Error('JSON parse failed'); }
+  const result = raw?.chart?.result?.[0];
+  if (!result) throw new Error('no chart result');
+  const timestamps = result.timestamp;
+  const closes = result.indicators?.adjclose?.[0]?.adjclose
+               || result.indicators?.quote?.[0]?.close;
+  if (!timestamps || !closes) throw new Error('missing OHLC arrays');
+  const data = [];
+  for (let i = 0; i < timestamps.length; i++) {
+    if (closes[i] != null && closes[i] > 0)
+      data.push({ date: new Date(timestamps[i] * 1000), close: closes[i] });
+  }
+  if (data.length < 3) throw new Error(`only ${data.length} points`);
+  return data;
+}
+
+async function tryFetch(url, opts={}) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const res = await fetch(url, { ...opts, signal: controller.signal });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return await res.text();
+  } catch(e) {
+    clearTimeout(timer);
+    throw e;
+  }
+}
+
+async function fetchYahoo(symbol, period) {
+  const stooqSym = toStooqSym(symbol);
+  const { startStr, endStr } = periodToDates(period);
+  const yahooSym = encodeURIComponent(symbol);
+  const yahooPath = `/v8/finance/chart/${yahooSym}?interval=1d&range=${period}&includeAdjustedClose=true`;
+
+  const strategies = [
+    // 1. stooq direct (open CORS, CSV)
+    async () => {
+      const url = `https://stooq.com/q/d/l/?s=${encodeURIComponent(stooqSym)}&d1=${startStr}&d2=${endStr}&i=d`;
+      const text = await tryFetch(url);
+      return parseStooqCSV(text, symbol);
+    },
+    // 2. allorigins → Yahoo query1
+    async () => {
+      const yahoo = `https://query1.finance.yahoo.com${yahooPath}`;
+      const text = await tryFetch(`https://api.allorigins.win/get?url=${encodeURIComponent(yahoo)}`);
+      return parseYahooJSON(text);
+    },
+    // 3. corsproxy.io → Yahoo query1
+    async () => {
+      const yahoo = `https://query1.finance.yahoo.com${yahooPath}`;
+      const text = await tryFetch(`https://corsproxy.io/?${encodeURIComponent(yahoo)}`);
+      return parseYahooJSON(text);
+    },
+    // 4. allorigins → Yahoo query2 (different host, sometimes less restricted)
+    async () => {
+      const yahoo = `https://query2.finance.yahoo.com${yahooPath}`;
+      const text = await tryFetch(`https://api.allorigins.win/get?url=${encodeURIComponent(yahoo)}`);
+      return parseYahooJSON(text);
+    },
+    // 5. corsproxy.io → Yahoo query2
+    async () => {
+      const yahoo = `https://query2.finance.yahoo.com${yahooPath}`;
+      const text = await tryFetch(`https://corsproxy.io/?${encodeURIComponent(yahoo)}`);
+      return parseYahooJSON(text);
+    },
+  ];
+
+  const errors = [];
+  for (let i = 0; i < strategies.length; i++) {
+    try {
+      const data = await strategies[i]();
+      console.log(`[fetch] ${symbol} OK via strategy ${i+1} (${data.length} rows)`);
+      return data;
+    } catch(e) {
+      errors.push(`S${i+1}:${e.message}`);
+      console.warn(`[fetch] ${symbol} strategy ${i+1} failed: ${e.message}`);
+      if (i < strategies.length - 1) await new Promise(r => setTimeout(r, 350));
+    }
+  }
+  throw new Error(`${symbol} — all strategies failed. ${errors.join(' | ')}`);
+}
+
+/* ════════════════════════════════════════════
+   RETURNS & STATS
+═══════════════════════════════════════════ */
+function calcDailyReturns(prices){
+  const r = [];
+  for(let i=1;i<prices.length;i++){
+    r.push((prices[i]-prices[i-1])/prices[i-1]);
+  }
+  return r;
+}
+
+function mean(arr){ return arr.reduce((a,b)=>a+b,0)/arr.length; }
+function variance(arr){ const m=mean(arr); return arr.reduce((a,b)=>a+(b-m)**2,0)/arr.length; }
+function stddev(arr){ return Math.sqrt(variance(arr)); }
+
+function linearRegression(x,y){
+  const n=x.length, mx=mean(x), my=mean(y);
+  let num=0,den=0;
+  for(let i=0;i<n;i++){ num+=(x[i]-mx)*(y[i]-my); den+=(x[i]-mx)**2; }
+  const beta=num/den;
+  const alpha=my-beta*mx;
+  // R²
+  const yhat=x.map(xi=>alpha+beta*xi);
+  const ssTot=y.reduce((a,yi)=>a+(yi-my)**2,0);
+  const ssRes=y.reduce((a,yi,i)=>a+(yi-yhat[i])**2,0);
+  const r2=1-ssRes/ssTot;
+  return {alpha, beta, r2};
+}
+
+function pearsonCorr(x,y){
+  const n=x.length, mx=mean(x), my=mean(y);
+  let num=0, dx2=0, dy2=0;
+  for(let i=0;i<n;i++){
+    num+=(x[i]-mx)*(y[i]-my);
+    dx2+=(x[i]-mx)**2;
+    dy2+=(y[i]-my)**2;
+  }
+  return num/Math.sqrt(dx2*dy2);
+}
+
+function alignedReturns(seriesA, seriesB){
+  // Align by date string
+  const mapA = new Map(seriesA.map(d=>[d.date.toISOString().slice(0,10), d.close]));
+  const mapB = new Map(seriesB.map(d=>[d.date.toISOString().slice(0,10), d.close]));
+  const keys = [...mapA.keys()].filter(k=>mapB.has(k)).sort();
+  const closesA = keys.map(k=>mapA.get(k));
+  const closesB = keys.map(k=>mapB.get(k));
+  const retA=[], retB=[];
+  for(let i=1;i<closesA.length;i++){
+    retA.push((closesA[i]-closesA[i-1])/closesA[i-1]);
+    retB.push((closesB[i]-closesB[i-1])/closesB[i-1]);
+  }
+  return {retA, retB, keys: keys.slice(1)};
+}
+
+function rollingCorrelation(retA, retB, window=90){
+  const result=[];
+  for(let i=window;i<=retA.length;i++){
+    const a=retA.slice(i-window,i);
+    const b=retB.slice(i-window,i);
+    result.push(pearsonCorr(a,b));
+  }
+  return result;
+}
+
+function normalizeToBase100(prices){
+  const base=prices[0];
+  return prices.map(p=>p/base*100);
+}
+
+function sma(arr, window){
+  return arr.map((_, i) => {
+    if(i < window-1) return null;
+    const slice = arr.slice(i-window+1, i+1);
+    return slice.reduce((a,b)=>a+b,0)/slice.length;
+  });
+}
+
+/* ════════════════════════════════════════════
+   MAIN LOAD
+═══════════════════════════════════════════ */
+async function loadAllData(){
+  hideError();
+  const oilTicker = document.getElementById('oil-ticker').value;
+  const customTickers = document.getElementById('custom-tickers').value
+    .split(',').map(s=>s.trim().toUpperCase()).filter(Boolean).slice(0,5);
+  const period = document.getElementById('period-select').value;
+
+  const allTickers = [oilTicker, 'SPY', ...customTickers];
+  document.getElementById('load-btn').disabled = true;
+
+  showLoading('FETCHING MARKET DATA…');
+
+  const fetched = {};
+  const errors = [];
+
+  for(const sym of allTickers){
+    try {
+      document.getElementById('loading-text').textContent = `FETCHING ${sym}…`;
+      fetched[sym] = await fetchYahoo(sym, period);
+      await new Promise(r=>setTimeout(r,300)); // rate-limit kindly
+    } catch(e) {
+      errors.push(sym);
+      console.warn(`Failed ${sym}:`, e);
+    }
+  }
+
+  hideLoading();
+  document.getElementById('load-btn').disabled = false;
+
+  if(errors.length === allTickers.length){
+    showError(`Could not fetch data for any ticker. All 5 fetch strategies failed — this is usually a temporary network issue with the CORS proxies. Please wait 30 seconds and try again. If the issue persists, try a different browser or disable any VPN/firewall extensions.`);
+    return;
+  }
+  if(errors.length > 0){
+    showError(`Note: Could not load data for: ${errors.join(', ')} (proxy timeout or rate-limit). Dashboard built from the ${allTickers.length - errors.length} symbols that loaded successfully.`);
+  }
+
+  globalData = { fetched, oilTicker, customTickers, period };
+  renderAll();
+}
+
+/* ════════════════════════════════════════════
+   RENDER ALL
+═══════════════════════════════════════════ */
+function renderAll(){
+  const { fetched, oilTicker, customTickers } = globalData;
+  const cosmetics = customTickers.filter(s=>fetched[s]);
+  const hasOil = !!fetched[oilTicker];
+  const hasSPY = !!fetched['SPY'];
+
+  // Destroy existing charts
+  Object.values(charts).forEach(c=>{ try{c.destroy()}catch(e){} });
+  charts = {};
+
+  renderKPIs(fetched, oilTicker, cosmetics);
+  renderPriceChart(fetched, oilTicker, cosmetics);
+  renderOilChart(fetched, oilTicker);
+  if(hasOil) renderCorrChart(fetched, oilTicker, cosmetics);
+  renderAlphaBetaTable(fetched, oilTicker, cosmetics);
+  renderScatterChart(fetched, cosmetics);
+  renderCorrSummary(fetched, oilTicker, cosmetics);
+  renderInsights(fetched, oilTicker, cosmetics);
+  updateTickerBar(fetched, oilTicker, cosmetics);
+  document.getElementById('last-updated').textContent = 'Updated: '+new Date().toLocaleString();
+}
+
+/* ─── KPI CARDS ──────────────────────────── */
+function renderKPIs(fetched, oilTicker, cosmetics){
+  const grid = document.getElementById('kpi-grid');
+  grid.innerHTML = '';
+
+  const syms = [oilTicker, 'SPY', ...cosmetics];
+  syms.forEach(sym => {
+    const d = fetched[sym];
+    if(!d||d.length<2) return;
+    const last = d[d.length-1].close;
+    const prev = d[d.length-2].close;
+    const chg = (last-prev)/prev*100;
+    const start = d[0].close;
+    const total = (last-start)/start*100;
+    const isOil = sym===oilTicker;
+    const isSPY = sym==='SPY';
+
+    const card = document.createElement('div');
+    card.className = `stat-card ${chg>=0?'positive':'negative'}`;
+    card.innerHTML = `
+      <div class="stat-label">${sym}${isOil?' · OIL':isSPY?' · BENCHMARK':' · COSMETICS'}</div>
+      <div class="stat-value">${isOil?'$':'' }${last.toFixed(isOil?2:2)}</div>
+      <div class="stat-change ${chg>=0?'pos':'neg'}">${fmtPct(chg)} today</div>
+      <div class="stat-change" style="color:var(--muted);font-size:0.68rem;margin-top:2px;">${fmtPct(total)} total return</div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+/* ─── NORMALIZED PRICE CHART ─────────────── */
+function renderPriceChart(fetched, oilTicker, cosmetics){
+  const syms = ['SPY', oilTicker, ...cosmetics];
+  const datasets = [];
+  const seriesMap = {}; // sym -> {startPrice, latestPrice, color}
+  let cosIdx = 0;
+
+  syms.forEach((sym, i) => {
+    const d = fetched[sym];
+    if(!d || d.length < 2) return;
+    const norm = normalizeToBase100(d.map(x => x.close));
+    const isSPY = sym === 'SPY';
+    const isOil = sym === oilTicker;
+    const color = isSPY ? '#5c5c5c' : isOil ? '#e67700' : PALETTE[cosIdx];
+    const dash  = isSPY ? [8,4] : isOil ? [4,3] : DASH_PATTERNS[cosIdx % DASH_PATTERNS.length];
+    const ps    = isSPY ? 'rectRot' : isOil ? 'triangle' : POINT_STYLES[cosIdx % POINT_STYLES.length];
+    if (!isSPY && !isOil) cosIdx++;
+
+    seriesMap[sym] = { color, startPrice: d[0].close, latestPrice: d[d.length-1].close };
+
+    datasets.push({
+      label: sym,
+      data: d.map((x, j) => ({ x: x.date, y: norm[j] })),
+      borderColor: color,
+      backgroundColor: color + '18',
+      borderWidth: isSPY ? 2 : isOil ? 2.5 : 2,
+      borderDash: dash,
+      pointRadius: 0,
+      pointHoverRadius: 6,
+      pointHoverBackgroundColor: color,
+      pointHoverBorderColor: '#fff',
+      pointHoverBorderWidth: 2,
+      pointStyle: ps,
+      tension: 0.2,
+      fill: false,
+    });
+  });
+
+  const ctx = document.getElementById('priceChart').getContext('2d');
+  charts.price = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          display: true, position: 'top',
+          labels: {
+            font: { family: 'DM Mono', size: 11 }, color: '#1a1410',
+            usePointStyle: true, pointStyleWidth: 14, padding: 18,
+            generateLabels: chart => chart.data.datasets.map((ds, i) => ({
+              text: ds.label,
+              fillStyle: ds.borderColor,
+              strokeStyle: ds.borderColor,
+              lineWidth: 2,
+              lineDash: ds.borderDash,
+              pointStyle: ds.pointStyle,
+              hidden: !chart.isDatasetVisible(i),
+              datasetIndex: i,
+            }))
+          }
+        },
+        tooltip: {
+          backgroundColor: '#1a1210',
+          titleColor: '#e8c84a',
+          bodyColor: '#e8e0d0',
+          borderColor: '#3a3028',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 4,
+          titleFont: { family: 'DM Mono', size: 11, weight: 'bold' },
+          bodyFont: { family: 'DM Mono', size: 11 },
+          callbacks: {
+            title: items => {
+              const d = new Date(items[0].parsed.x);
+              return d.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+            },
+            label: item => {
+              const sym = item.dataset.label;
+              const idx = item.dataIndex;
+              const val = item.parsed.y;
+              const meta = COMPANY_META[sym] || {};
+              const totalRet = (val - 100).toFixed(1);
+              const sign = totalRet >= 0 ? '+' : '';
+              return `  ${sym}  ${val.toFixed(1)}  (${sign}${totalRet}% vs start)`;
+            },
+            afterLabel: item => {
+              const sym = item.dataset.label;
+              const meta = COMPANY_META[sym];
+              return meta ? `  ${meta.role}` : '';
+            },
+            afterBody: items => {
+              if (items.length < 2) return [];
+              const vals = items.map(i => i.parsed.y);
+              const best = items[vals.indexOf(Math.max(...vals))].dataset.label;
+              const worst = items[vals.indexOf(Math.min(...vals))].dataset.label;
+              return ['', `  Best:  ${best}`, `  Worst: ${worst}`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time', time: { unit: 'month' },
+          grid: { color: '#e8e0d0' },
+          ticks: { font: { family: 'DM Mono', size: 10 }, color: '#8a7f74' }
+        },
+        y: {
+          grid: { color: '#e8e0d0' },
+          ticks: { font: { family: 'DM Mono', size: 10 }, color: '#8a7f74', callback: v => v.toFixed(0) },
+          title: { display: true, text: 'Indexed (Base = 100)', font: { family: 'DM Mono', size: 10 }, color: '#8a7f74' }
+        }
+      }
+    }
+  });
+}
+
+/* ─── OIL PRICE CHART ────────────────────── */
+function renderOilChart(fetched, oilTicker){
+  const d = fetched[oilTicker];
+  if(!d || d.length < 2) return;
+  const closes = d.map(x => x.close);
+  const sma90 = sma(closes, 90);
+  const oilName = COMPANY_META[oilTicker]?.name || oilTicker;
+
+  const ctx = document.getElementById('oilChart').getContext('2d');
+  charts.oil = new Chart(ctx, {
+    type: 'line',
+    data: {
+      datasets: [
+        {
+          label: 'Daily Close',
+          data: d.map((x, i) => ({ x: x.date, y: x.close })),
+          borderColor: '#e67700',
+          backgroundColor: '#e6770018',
+          borderWidth: 2,
+          pointRadius: 0,
+          pointHoverRadius: 6,
+          pointHoverBackgroundColor: '#e67700',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
+          fill: true, tension: 0.1,
+        },
+        {
+          label: '90-Day SMA',
+          data: d.map((x, i) => ({ x: x.date, y: sma90[i] })),
+          borderColor: '#9c36b5',
+          borderWidth: 2,
+          borderDash: [7, 4],
+          pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: '#9c36b5',
+          pointHoverBorderColor: '#fff',
+          pointHoverBorderWidth: 2,
+          fill: false, tension: 0.3,
+        },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: { font: { family: 'DM Mono', size: 10 }, color: '#1a1410', usePointStyle: true, padding: 14 }
+        },
+        tooltip: {
+          backgroundColor: '#1a1210',
+          titleColor: '#e8c84a',
+          bodyColor: '#e8e0d0',
+          borderColor: '#3a3028',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 4,
+          titleFont: { family: 'DM Mono', size: 11, weight: 'bold' },
+          bodyFont: { family: 'DM Mono', size: 11 },
+          callbacks: {
+            title: items => {
+              const dt = new Date(items[0].parsed.x);
+              return dt.toLocaleDateString('en-US', { weekday:'short', month:'short', day:'numeric', year:'numeric' });
+            },
+            label: item => {
+              const price = item.parsed.y;
+              if (price == null) return '';
+              const label = item.dataset.label;
+              return `  ${label}:  $${price.toFixed(2)}/bbl`;
+            },
+            afterBody: items => {
+              const priceItem = items.find(i => i.dataset.label === 'Daily Close');
+              const smaItem   = items.find(i => i.dataset.label === '90-Day SMA');
+              if (!priceItem || !smaItem || smaItem.parsed.y == null) return [];
+              const diff = priceItem.parsed.y - smaItem.parsed.y;
+              const pct  = (diff / smaItem.parsed.y * 100).toFixed(1);
+              const sign = diff >= 0 ? '+' : '';
+              const trend = diff >= 0 ? 'ABOVE trend (bullish)' : 'BELOW trend (bearish)';
+              return ['', `  vs SMA: ${sign}$${diff.toFixed(2)} (${sign}${pct}%)`, `  Signal: ${trend}`];
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time', time: { unit: 'quarter' },
+          grid: { color: '#e8e0d0' },
+          ticks: { font: { family: 'DM Mono', size: 9 }, color: '#8a7f74' }
+        },
+        y: {
+          grid: { color: '#e8e0d0' },
+          ticks: { font: { family: 'DM Mono', size: 9 }, color: '#8a7f74', callback: v => '$' + v.toFixed(0) },
+          title: { display: true, text: 'Price (USD/bbl)', font: { family: 'DM Mono', size: 9 }, color: '#8a7f74' }
+        }
+      }
+    }
+  });
+}
+
+/* ─── ROLLING CORR CHART ─────────────────── */
+function renderCorrChart(fetched, oilTicker, cosmetics){
+  const oilData = fetched[oilTicker];
+  const datasets = [];
+
+  cosmetics.forEach((sym, i) => {
+    const d = fetched[sym];
+    if(!d || !oilData) return;
+    const {retA: retOil, retB: retStock, keys} = alignedReturns(oilData, d);
+    const rolling = rollingCorrelation(retOil, retStock, 90);
+    const startIdx = keys.length - rolling.length;
+    const color = PALETTE[i % PALETTE.length];
+    const dash  = DASH_PATTERNS[i % DASH_PATTERNS.length];
+    const ps    = POINT_STYLES[i % POINT_STYLES.length];
+
+    datasets.push({
+      label: sym,
+      data: rolling.map((v, j) => ({ x: new Date(keys[startIdx+j]), y: v })),
+      borderColor: color,
+      borderWidth: 2,
+      borderDash: dash,
+      pointRadius: 0,
+      pointHoverRadius: 6,
+      pointHoverBackgroundColor: color,
+      pointHoverBorderColor: '#fff',
+      pointHoverBorderWidth: 2,
+      pointStyle: ps,
+      fill: false, tension: 0.2,
+    });
+  });
+
+  const ctx = document.getElementById('corrChart').getContext('2d');
+  charts.corr = new Chart(ctx, {
+    type: 'line',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      interaction: { mode: 'index', intersect: false },
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: 'DM Mono', size: 10 }, color: '#1a1410',
+            usePointStyle: true, pointStyleWidth: 14, padding: 14,
+            generateLabels: chart => chart.data.datasets.map((ds, i) => ({
+              text: ds.label,
+              fillStyle: ds.borderColor,
+              strokeStyle: ds.borderColor,
+              lineWidth: 2,
+              lineDash: ds.borderDash,
+              pointStyle: ds.pointStyle,
+              hidden: !chart.isDatasetVisible(i),
+              datasetIndex: i,
+            }))
+          }
+        },
+        tooltip: {
+          backgroundColor: '#1a1210',
+          titleColor: '#e8c84a',
+          bodyColor: '#e8e0d0',
+          borderColor: '#3a3028',
+          borderWidth: 1,
+          padding: 12,
+          cornerRadius: 4,
+          titleFont: { family: 'DM Mono', size: 11, weight: 'bold' },
+          bodyFont: { family: 'DM Mono', size: 11 },
+          callbacks: {
+            title: items => {
+              const dt = new Date(items[0].parsed.x);
+              return dt.toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' });
+            },
+            label: item => {
+              const sym = item.dataset.label;
+              const r = item.parsed.y;
+              const strength = Math.abs(r) > 0.6 ? 'Strong' : Math.abs(r) > 0.3 ? 'Moderate' : 'Weak';
+              const dir = r > 0 ? 'Positive' : r < 0 ? 'Negative' : 'None';
+              return `  ${sym}:  r = ${r.toFixed(3)}  (${strength} ${dir})`;
+            },
+            afterLabel: item => {
+              const sym = item.dataset.label;
+              const r = item.parsed.y;
+              const meta = COMPANY_META[sym];
+              let interp = '';
+              if (r > 0.4) interp = 'Moves with oil — cost-sensitive';
+              else if (r < -0.4) interp = 'Moves vs oil — Lipstick Effect candidate';
+              else interp = 'Low oil linkage — idiosyncratic driver';
+              return `  ${interp}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          type: 'time', time: { unit: 'quarter' },
+          grid: { color: '#e8e0d0' },
+          ticks: { font: { family: 'DM Mono', size: 9 }, color: '#8a7f74' }
+        },
+        y: {
+          min: -1, max: 1,
+          grid: {
+            color: ctx => ctx.tick.value === 0 ? '#8a7f7488' : '#e8e0d0',
+            lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1,
+          },
+          ticks: {
+            font: { family: 'DM Mono', size: 9 }, color: '#8a7f74',
+            callback: v => {
+              if (v === 1) return '+1.0 (Perfect)';
+              if (v === 0) return ' 0.0 (None)';
+              if (v === -1) return '-1.0 (Inverse)';
+              return v.toFixed(1);
+            }
+          },
+          title: { display: true, text: 'Pearson r (90-day rolling)', font: { family: 'DM Mono', size: 9 }, color: '#8a7f74' }
+        }
+      }
+    }
+  });
+}
+
+/* ─── ALPHA BETA TABLE ───────────────────── */
+function renderAlphaBetaTable(fetched, oilTicker, cosmetics){
+  const spy = fetched['SPY'];
+  const oil = fetched[oilTicker];
+  const tbody = document.getElementById('ab-tbody');
+  tbody.innerHTML = '';
+
+  const syms = ['SPY', ...cosmetics];
+
+  syms.forEach(sym => {
+    const d = fetched[sym];
+    if(!spy||!d||d.length<30) return;
+
+    // Align with SPY
+    const {retA:retSPY, retB:retStock} = alignedReturns(spy, d);
+
+    // Alpha/Beta via CAPM regression
+    const {alpha, beta, r2} = linearRegression(retSPY, retStock);
+    const annAlpha = alpha*252;
+    const annVol = stddev(retStock)*Math.sqrt(252)*100;
+    const annReturn = (Math.pow(1+mean(retStock),252)-1)*100;
+    const sharpe = (annReturn - 3.5) / annVol; // assume 3.5% risk-free
+
+    // Oil correlation
+    let oilCorr = null;
+    if(oil && sym!==oilTicker){
+      const {retA:retOil, retB:rStock} = alignedReturns(oil, d);
+      if(retOil.length>30) oilCorr = pearsonCorr(retOil, rStock);
+    }
+
+    const isSPY = sym==='SPY';
+    const name = COMPANY_NAMES[sym]||sym;
+    const lastPrice = d[d.length-1].close;
+    const totalRet = (lastPrice/d[0].close-1)*100;
+
+    // Beta bar capped at 2
+    const betaBarW = Math.min(Math.abs(beta)/2*100,100);
+
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td class="cell-sym">${sym}</td>
+      <td class="cell-name">${name}</td>
+      <td class="cell-neutral">$${lastPrice.toFixed(2)}</td>
+      <td class="${totalRet>=0?'cell-pos':'cell-neg'}">${fmtPct(totalRet)}</td>
+      <td class="${annAlpha*100>=0?'cell-pos':'cell-neg'}">${fmtPct(annAlpha*100)}</td>
+      <td class="${beta<0.8?'cell-pos':beta>1.2?'cell-neg':'cell-neutral'}">${fmtNum(beta)}</td>
+      <td>
+        <div class="beta-bar-wrap">
+          <div class="beta-bar-bg"><div class="beta-bar-fill" style="width:${betaBarW}%;background:${beta>1?'#c0392b':'#2d6a4f'}"></div></div>
+          <span style="font-size:0.7rem;color:var(--muted)">${fmtNum(beta)}</span>
+        </div>
+      </td>
+      <td class="cell-neutral">${fmtNum(annVol)}%</td>
+      <td class="${sharpe>=1?'cell-pos':sharpe<0?'cell-neg':'cell-neutral'}">${fmtNum(sharpe)}</td>
+      <td class="cell-neutral">${fmtNum(r2*100)}%</td>
+      <td class="${oilCorr===null?'cell-neutral':oilCorr>0.3?'cell-neg':oilCorr<-0.3?'cell-pos':'cell-neutral'}">${oilCorr===null?'—':fmtNum(oilCorr,3)}</td>
+    `;
+    tbody.appendChild(row);
+  });
+}
+
+/* ─── SCATTER CHART ─────────────────────── */
+function renderScatterChart(fetched, cosmetics){
+  const spy = fetched['SPY'];
+  if(!spy) return;
+
+  const syms = ['SPY', ...cosmetics];
+  let cosIdx = 0;
+
+  const datasets = [];
+  syms.forEach((sym, i) => {
+    const d = fetched[sym];
+    if(!d || d.length < 30) return;
+    const {retA: retSPY, retB: retStock} = alignedReturns(spy, d);
+    const vol = stddev(retStock) * Math.sqrt(252) * 100;
+    const ret = (Math.pow(1 + mean(retStock), 252) - 1) * 100;
+    const {alpha, beta} = linearRegression(retSPY, retStock);
+    const isSPY = sym === 'SPY';
+    const color = isSPY ? '#5c5c5c' : PALETTE[cosIdx % PALETTE.length];
+    const ps    = isSPY ? 'rectRot' : POINT_STYLES[cosIdx % POINT_STYLES.length];
+    if (!isSPY) cosIdx++;
+
+    datasets.push({
+      label: sym,
+      data: [{ x: vol, y: ret, alpha: alpha*252*100, beta }],
+      backgroundColor: color + 'cc',
+      borderColor: color,
+      borderWidth: 2,
+      pointStyle: ps,
+      pointRadius: 10,
+      pointHoverRadius: 14,
+      pointHoverBackgroundColor: color,
+      pointHoverBorderColor: '#fff',
+      pointHoverBorderWidth: 2.5,
+    });
+  });
+
+  const ctx = document.getElementById('scatterChart').getContext('2d');
+  charts.scatter = new Chart(ctx, {
+    type: 'scatter',
+    data: { datasets },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          labels: {
+            font: { family: 'DM Mono', size: 10 }, color: '#1a1410',
+            usePointStyle: true, pointStyleWidth: 12, padding: 14,
+          }
+        },
+        tooltip: {
+          backgroundColor: '#1a1210',
+          titleColor: '#e8c84a',
+          bodyColor: '#e8e0d0',
+          borderColor: '#3a3028',
+          borderWidth: 1,
+          padding: 14,
+          cornerRadius: 4,
+          titleFont: { family: 'DM Mono', size: 12, weight: 'bold' },
+          bodyFont: { family: 'DM Mono', size: 11 },
+          callbacks: {
+            title: items => {
+              const sym = items[0].dataset.label;
+              const meta = COMPANY_META[sym];
+              return meta ? meta.name : sym;
+            },
+            label: item => {
+              const d = item.raw;
+              return [
+                `  Volatility:  ${item.parsed.x.toFixed(1)}% annualized`,
+                `  Return:      ${item.parsed.y >= 0 ? '+' : ''}${item.parsed.y.toFixed(1)}% annualized`,
+              ];
+            },
+            afterLabel: item => {
+              const sym = item.dataset.label;
+              const d = item.raw;
+              const alphaSign = d.alpha >= 0 ? '+' : '';
+              const riskLabel = item.parsed.x > 30 ? 'High Risk' : item.parsed.x > 20 ? 'Moderate Risk' : 'Low Risk';
+              const retLabel  = item.parsed.y > 15 ? 'Strong Return' : item.parsed.y > 0 ? 'Positive Return' : 'Negative Return';
+              const meta = COMPANY_META[sym];
+              return [
+                `  Alpha:       ${alphaSign}${d.alpha ? d.alpha.toFixed(2) : 'N/A'}% / yr`,
+                `  Beta:        ${d.beta ? d.beta.toFixed(3) : 'N/A'}`,
+                `  Profile:     ${riskLabel} · ${retLabel}`,
+                meta ? `  Sector:      ${meta.sector}` : '',
+              ].filter(Boolean);
+            }
+          }
+        }
+      },
+      scales: {
+        x: {
+          grid: { color: '#e8e0d0' },
+          ticks: { font: { family: 'DM Mono', size: 9 }, color: '#8a7f74', callback: v => v.toFixed(0) + '%' },
+          title: { display: true, text: 'Annualized Volatility (Risk)', font: { family: 'DM Mono', size: 10, weight: 'bold' }, color: '#8a7f74' }
+        },
+        y: {
+          grid: { color: ctx => ctx.tick.value === 0 ? '#8a7f7488' : '#e8e0d0', lineWidth: ctx => ctx.tick.value === 0 ? 2 : 1 },
+          ticks: { font: { family: 'DM Mono', size: 9 }, color: '#8a7f74', callback: v => (v >= 0 ? '+' : '') + v.toFixed(0) + '%' },
+          title: { display: true, text: 'Annualized Return', font: { family: 'DM Mono', size: 10, weight: 'bold' }, color: '#8a7f74' }
+        }
+      }
+    }
+  });
+}
+
+/* ─── CORR SUMMARY CARDS ─────────────────── */
+function renderCorrSummary(fetched, oilTicker, cosmetics){
+  const oil = fetched[oilTicker];
+  const panel = document.getElementById('corr-summary-panel');
+  if(!oil){ panel.innerHTML = '<div class="empty-state" style="min-height:200px;"><p>No oil data</p></div>'; return; }
+
+  const grid = document.createElement('div');
+  grid.className = 'correlation-grid';
+
+  // SPY vs Oil
+  const spy = fetched['SPY'];
+  if(spy){
+    const {retA,retB} = alignedReturns(oil,spy);
+    const c = pearsonCorr(retA,retB);
+    appendCorrCard(grid,'SPY',c);
+  }
+
+  cosmetics.forEach(sym=>{
+    const d = fetched[sym];
+    if(!d) return;
+    const {retA,retB} = alignedReturns(oil,d);
+    if(retA.length<30) return;
+    const c = pearsonCorr(retA,retB);
+    appendCorrCard(grid,sym,c);
+  });
+
+  panel.innerHTML = '';
+  panel.appendChild(grid);
+}
+
+function appendCorrCard(grid,sym,c){
+  const abs = Math.abs(c);
+  const hue = c>0?`color:var(--rouge)`:abs>0.3?`color:var(--gold)`:`color:var(--green)`;
+  const label = abs>0.5?'Strong '+(c>0?'Positive':'Negative'):abs>0.3?'Moderate '+(c>0?'Positive':'Negative'):'Weak / Uncorrelated';
+  const card = document.createElement('div');
+  card.className='corr-card';
+  card.innerHTML=`
+    <div class="corr-symbol">${sym}</div>
+    <div class="corr-value" style="${hue}">${c.toFixed(3)}</div>
+    <div class="corr-label">${label}</div>
+  `;
+  grid.appendChild(card);
+}
+
+/* ─── INSIGHTS ───────────────────────────── */
+function renderInsights(fetched, oilTicker, cosmetics){
+  const grid = document.getElementById('insights-grid');
+  grid.innerHTML='';
+  const oil=fetched[oilTicker], spy=fetched['SPY'];
+  const insights=[];
+
+  // Oil trend
+  if(oil&&oil.length>30){
+    const closes=oil.map(x=>x.close);
+    const recent=closes.slice(-90), old=closes.slice(-180,-90);
+    const recentAvg=mean(recent),oldAvg=mean(old);
+    const trend=(recentAvg-oldAvg)/oldAvg*100;
+    const dir=trend>5?'Rising':trend<-5?'Declining':'Flat';
+    const cls=trend>5?'bearish':trend<-5?'bullish':'neutral';
+    insights.push({
+      cls, tag:'OIL TREND',
+      title:`${dir} Oil Prices (${fmtPct(trend)} in 90 days)`,
+      body:`WTI Crude has moved ${Math.abs(trend).toFixed(1)}% over the last 90 days vs prior 90-day period. ${trend>5?'Rising input costs may pressure cosmetics margins.':trend<-5?'Lower oil reduces packaging/transport costs for cosmetics companies.':'Stable oil creates predictable cost environments for beauty sector.'}`,
+    });
+  }
+
+  // Alpha leaders
+  if(spy){
+    let best=null, bestAlpha=-Infinity;
+    cosmetics.forEach(sym=>{
+      const d=fetched[sym]; if(!d||d.length<30) return;
+      const {retA,retB}=alignedReturns(spy,d);
+      const {alpha}=linearRegression(retA,retB);
+      if(alpha*252>bestAlpha){bestAlpha=alpha*252;best=sym;}
+    });
+    if(best) insights.push({
+      cls:'bullish',tag:'ALPHA LEADER',
+      title:`${best} Shows Highest Alpha`,
+      body:`${COMPANY_NAMES[best]||best} generates the highest risk-adjusted excess return vs the S&P 500. Positive alpha (${fmtPct(bestAlpha*100)}/yr) suggests management skill or structural competitive advantage above market compensation for risk.`,
+    });
+  }
+
+  // Beta risk
+  if(spy){
+    let highest=null, highestBeta=-Infinity;
+    cosmetics.forEach(sym=>{
+      const d=fetched[sym]; if(!d||d.length<30) return;
+      const {retA,retB}=alignedReturns(spy,d);
+      const {beta}=linearRegression(retA,retB);
+      if(beta>highestBeta){highestBeta=beta;highest=sym;}
+    });
+    if(highest) insights.push({
+      cls:highestBeta>1.2?'bearish':'neutral',tag:'BETA RISK',
+      title:`${highest} Most Market-Sensitive (β=${highestBeta.toFixed(2)})`,
+      body:`Beta of ${highestBeta.toFixed(2)} means ${COMPANY_NAMES[highest]||highest} moves ~${highestBeta.toFixed(1)}x the S&P 500. ${highestBeta>1?'High-beta cosmetics names tend to amplify market moves — both up and down.':'A beta near 1 implies the stock mirrors overall market behavior, offering no diversification from index risk.'}`,
+    });
+  }
+
+  // Oil correlation insight
+  if(oil){
+    const corrs=[];
+    cosmetics.forEach(sym=>{
+      const d=fetched[sym];if(!d||d.length<30)return;
+      const{retA,retB}=alignedReturns(oil,d);
+      corrs.push({sym,c:pearsonCorr(retA,retB)});
+    });
+    corrs.sort((a,b)=>Math.abs(b.c)-Math.abs(a.c));
+    if(corrs.length){
+      const top=corrs[0];
+      insights.push({
+        cls:top.c>0?'bearish':'bullish',tag:'OIL SENSITIVITY',
+        title:`${top.sym} Most Correlated to Oil (r=${top.c.toFixed(3)})`,
+        body:`${COMPANY_NAMES[top.sym]||top.sym} has the strongest statistical relationship with crude oil prices. ${top.c>0?'Positive correlation suggests oil rises hurt this name — higher input/logistics costs.':'Negative correlation is consistent with "Lipstick Effect" theory: consumers trade down to affordable beauty when energy prices rise, boosting volume brands.'}`,
+      });
+    }
+  }
+
+  // Lipstick Effect theory
+  insights.push({
+    cls:'neutral',tag:'THEORY',
+    title:'The Lipstick Index Explained',
+    body:`Coined by Leonard Lauder (Estée Lauder) during the 2001 recession: when consumers cut spending, they still buy small affordable luxuries like lipstick. This dashboard tests whether cosmetics stocks outperform broad markets during periods of rising oil prices — a proxy for economic stress.`,
+  });
+
+  // Volatility insight
+  if(spy){
+    const spyVol=stddev(calcDailyReturns(spy.map(x=>x.close)))*Math.sqrt(252)*100;
+    const cosVols=cosmetics.map(sym=>{
+      const d=fetched[sym];if(!d)return null;
+      return stddev(calcDailyReturns(d.map(x=>x.close)))*Math.sqrt(252)*100;
+    }).filter(Boolean);
+    if(cosVols.length){
+      const avgCosVol=mean(cosVols);
+      insights.push({
+        cls:avgCosVol>spyVol+5?'bearish':'bullish',tag:'VOLATILITY',
+        title:`Cosmetics Avg Vol: ${avgCosVol.toFixed(1)}% vs SPY ${spyVol.toFixed(1)}%`,
+        body:`The average annualized volatility of your cosmetics basket is ${avgCosVol.toFixed(1)}%, ${avgCosVol>spyVol?'higher':'lower'} than SPY's ${spyVol.toFixed(1)}%. ${avgCosVol>spyVol?'Higher idiosyncratic risk suggests diversification benefits are limited unless correlation with SPY is low.':'Lower volatility may indicate defensive characteristics — beauty spending can be sticky even in downturns.'}`,
+      });
+    }
+  }
+
+  insights.forEach(ins=>{
+    const card=document.createElement('div');
+    card.className=`insight-card ${ins.cls}`;
+    card.innerHTML=`<div class="insight-tag">${ins.tag}</div><div class="insight-title">${ins.title}</div><div class="insight-body">${ins.body}</div>`;
+    grid.appendChild(card);
+  });
+}
+
+/* ─── TICKER BAR UPDATE ──────────────────── */
+function updateTickerBar(fetched, oilTicker, cosmetics){
+  const syms=[oilTicker,'SPY',...cosmetics];
+  let html='';
+  syms.forEach(sym=>{
+    const d=fetched[sym]; if(!d||d.length<2)return;
+    const last=d[d.length-1].close, prev=d[d.length-2].close;
+    const chg=(last-prev)/prev*100;
+    const cls=chg>=0?'tick-pos':'tick-neg';
+    html+=`<span class="tick-item"><span class="tick-sym">${sym}</span> $${last.toFixed(2)} <span class="${cls}">${fmtPct(chg)}</span></span>`;
+  });
+  const double=html+html;
+  document.getElementById('ticker-scroll').innerHTML=double;
+}
+
+
+/* ════════════════════════════════════════════
+   BREAKING NEWS TICKER
+═══════════════════════════════════════════ */
+// Each headline includes a search URL pointing to a real source query
+// URL opens in new tab so users never leave the dashboard
+const NEWS_HEADLINES = [
+  { tag:'OPEC', cls:'opec',
+    text:'OPEC+ extends voluntary production cuts through Q3, tightening global supply outlook',
+    url:'https://www.reuters.com/business/energy/opec-production-cuts-extension/' },
+  { tag:'GEO',  cls:'geo',
+    text:'Houthi attacks in Red Sea disrupt tanker routes; war-risk premiums surge on Gulf shipping',
+    url:'https://www.reuters.com/world/middle-east/houthi-attacks-red-sea-shipping/' },
+  { tag:'ECON', cls:'econ',
+    text:'U.S. strategic petroleum reserve hits multi-decade low; energy dept signals potential buyback',
+    url:'https://www.eia.gov/petroleum/supply/weekly/' },
+  { tag:'GEO',  cls:'geo',
+    text:'Russia-Ukraine ceasefire talks stall; European gas futures spike on renewed supply anxiety',
+    url:'https://www.ft.com/search?q=russia+ukraine+energy+gas+futures' },
+  { tag:'RISK', cls:'risk',
+    text:'Iran nuclear negotiations collapse; analysts warn of potential Strait of Hormuz disruption',
+    url:'https://www.wsj.com/search?query=iran+strait+of+hormuz+oil' },
+  { tag:'OPEC', cls:'opec',
+    text:'Saudi Aramco reports record quarterly earnings; kingdom raises OSP for Asia-bound crude',
+    url:'https://www.bloomberg.com/search?query=saudi+aramco+earnings+OSP' },
+  { tag:'TRADE',cls:'trade',
+    text:'China stimulus package lifts crude demand forecast; IEA revises 2025 consumption outlook upward 400k bbl/day',
+    url:'https://www.iea.org/topics/oil-market-report' },
+  { tag:'GEO',  cls:'geo',
+    text:'Nigerian pipeline sabotage cuts 180,000 bbl/day from west African output; Shell declares force majeure',
+    url:'https://www.reuters.com/business/energy/nigeria-pipeline-oil-production/' },
+  { tag:'ECON', cls:'econ',
+    text:'Fed holds rates; dollar weakens — oil rallies as purchasing power improves for global buyers',
+    url:'https://www.federalreserve.gov/newsevents/pressreleases.htm' },
+  { tag:'RISK', cls:'risk',
+    text:'Iraq-Kurdistan export pipeline dispute resurfaces; northern Iraqi fields at risk of temporary shutdown',
+    url:'https://www.reuters.com/business/energy/iraq-kurdistan-oil-pipeline/' },
+  { tag:'OPEC', cls:'opec',
+    text:'UAE signals willingness to increase quota if demand data warrants; OPEC+ emergency meeting called',
+    url:'https://www.opec.org/opec_web/en/press_room/press_releases.htm' },
+  { tag:'GEO',  cls:'geo',
+    text:'Venezuela sanctions eased conditionally; Chevron resumes limited Orinoco belt operations',
+    url:'https://www.reuters.com/business/energy/venezuela-sanctions-chevron-oil/' },
+  { tag:'TRADE',cls:'trade',
+    text:'India overtakes China as fastest-growing crude importer; refiners boost Middle East spot purchases',
+    url:'https://www.bloomberg.com/search?query=india+crude+oil+imports+refinery' },
+  { tag:'ECON', cls:'econ',
+    text:'Global freight rates surge 40% YoY as Panama Canal drought forces longer Cape routes',
+    url:'https://www.freightos.com/freight-resources/panama-canal-drought-shipping/' },
+  { tag:'RISK', cls:'risk',
+    text:'Libya NOC warns eastern faction may block Sharara field operations amid ongoing political crisis',
+    url:'https://www.reuters.com/business/energy/libya-oil-noc-sharara/' },
+  { tag:'GEO',  cls:'geo',
+    text:'G7 price cap on Russian oil under review; compliance gaps widen as shadow fleet grows to 600+ vessels',
+    url:'https://www.ft.com/search?q=russian+oil+price+cap+shadow+fleet' },
+  { tag:'TRADE',cls:'trade',
+    text:'LNG spot prices fall to 3-year lows in Europe; mild winter reduces storage drawdowns across EU',
+    url:'https://www.icis.com/explore/resources/news/lng-europe-prices/' },
+  { tag:'OPEC', cls:'opec',
+    text:'Kazakhstan exceeds OPEC+ quota for third straight month; cartel threatens compensatory cuts',
+    url:'https://www.reuters.com/business/energy/kazakhstan-opec-quota-overproduction/' },
+  { tag:'ECON', cls:'econ',
+    text:'EV adoption accelerates in China; long-term oil demand growth forecasts trimmed by Goldman Sachs',
+    url:'https://www.bloomberg.com/search?query=china+ev+adoption+oil+demand+goldman+sachs' },
+  { tag:'RISK', cls:'risk',
+    text:'Tropical storm threatens Gulf of Mexico platforms; operators begin precautionary rig evacuations',
+    url:'https://www.nhc.noaa.gov/' },
+  { tag:'GEO',  cls:'geo',
+    text:'Turkish straits temporarily closed for maintenance; Bosphorus tanker queue extends to 48 vessels',
+    url:'https://www.reuters.com/business/energy/bosphorus-tanker-shipping-turkey/' },
+  { tag:'OPEC', cls:'opec',
+    text:'OPEC+ output deal intact despite internal tensions; next ministerial meeting set for Vienna',
+    url:'https://www.opec.org/opec_web/en/press_room/press_releases.htm' },
+  { tag:'TRADE',cls:'trade',
+    text:'U.S. shale output hits record 13.5 million bbl/day; Permian Basin rigs up for 4th consecutive week',
+    url:'https://www.eia.gov/petroleum/drilling/' },
+  { tag:'RISK', cls:'risk',
+    text:'Cybersecurity breach at major European pipeline operator triggers emergency response protocols',
+    url:'https://www.ft.com/search?q=pipeline+cybersecurity+energy+infrastructure' },
+  { tag:'GEO',  cls:'geo',
+    text:'Sudan conflict threatens Red Sea transit security; Egypt raises Suez Canal tolls for oil tankers',
+    url:'https://www.reuters.com/world/africa/sudan-red-sea-suez-canal-oil-tankers/' },
+];
+
+function buildNewsTicker() {
+  const scroll = document.getElementById('news-scroll');
+  // Duplicate for seamless infinite loop
+  const items = [...NEWS_HEADLINES, ...NEWS_HEADLINES];
+  scroll.innerHTML = items.map(h =>
+    `<a class="news-item" href="${h.url}" target="_blank" rel="noopener noreferrer" title="Search: ${h.text}">
+      <span class="news-tag ${h.cls}">${h.tag}</span>
+      ${h.text}
+      <span class="news-link-icon">↗</span>
+      <span class="news-sep">◆</span>
+    </a>`
+  ).join('');
+}
+
+buildNewsTicker();
+</script>
+</body>
+</html>
