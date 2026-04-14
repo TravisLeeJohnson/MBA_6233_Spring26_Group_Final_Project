@@ -67,7 +67,23 @@
     color: var(--cream);
   }
 
-  .header-brand h1 span { color: var(--gold-light); }
+  .header-brand h1 span { color: #C0022F; }
+
+  .kiss-mark {
+    font-style: normal;
+    font-size: 1.15em;
+    display: inline-block;
+    transform: rotate(-15deg) translateY(2px);
+    margin-right: 1px;
+    filter: drop-shadow(0 0 6px rgba(192,2,47,0.5));
+    animation: kissWobble 4s ease-in-out infinite;
+    transform-origin: center bottom;
+  }
+
+  @keyframes kissWobble {
+    0%, 100% { transform: rotate(-15deg) translateY(2px) scale(1); }
+    50%       { transform: rotate(-8deg)  translateY(0px) scale(1.08); }
+  }
 
   .header-sub {
     font-family: 'DM Mono', monospace;
@@ -321,21 +337,30 @@
   }
 
   .btn-load {
-    background: var(--ink);
-    color: var(--gold-light);
+    background: #C0022F;
+    color: #fff;
     border: none;
-    border-radius: 2px;
-    padding: 0.55rem 1.5rem;
+    border-radius: 4px;
+    padding: 0.75rem 2.25rem;
     font-family: 'DM Mono', monospace;
-    font-size: 0.8rem;
-    letter-spacing: 0.08em;
+    font-size: 0.85rem;
+    font-weight: 500;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.18s, transform 0.12s, box-shadow 0.18s;
+    box-shadow: 0 4px 14px rgba(192,2,47,0.35);
+    align-self: flex-end;
   }
 
-  .btn-load:hover { background: var(--charcoal); }
-  .btn-load:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-load:hover {
+    background: #a0021f;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(192,2,47,0.45);
+  }
+
+  .btn-load:active { transform: translateY(0); box-shadow: 0 2px 8px rgba(192,2,47,0.3); }
+  .btn-load:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
 
   /* ─── LOADING ─────────────────────────────── */
   #loading-overlay {
@@ -432,17 +457,16 @@
   /* ─── SECTION HEADERS ─────────────────────── */
   .section-header {
     display: flex;
-    align-items: baseline;
-    gap: 1rem;
-    margin-bottom: 1rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--border);
+    flex-direction: column;
+    gap: 0.2rem;
+    margin-bottom: 1.25rem;
   }
 
   .section-header h2 {
     font-family: 'Playfair Display', serif;
-    font-size: 1.3rem;
+    font-size: 1.25rem;
     font-weight: 700;
+    line-height: 1.2;
   }
 
   .section-header .section-meta {
@@ -452,12 +476,68 @@
     letter-spacing: 0.08em;
   }
 
+  .section-desc {
+    font-size: 0.82rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-top: 0.1rem;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  /* Section card wrapper */
+  .section-card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 1.75rem 2rem 1.5rem;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  }
+
+  /* Intro banner */
+  .intro-banner {
+    background: #f0ebff;
+    border-bottom: 1px solid #d8d0f0;
+    padding: 0.85rem 2rem;
+  }
+
+  .intro-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    font-size: 0.85rem;
+    color: #3a3050;
+    line-height: 1.55;
+  }
+
+  .intro-icon { font-size: 1rem; flex-shrink: 0; margin-top: 2px; }
+  .intro-inner strong { color: #1a1410; }
+
+  /* Chart empty state overlay */
+  .chart-empty-state {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    background: rgba(250,246,239,0.92);
+    z-index: 2;
+    border-radius: 4px;
+  }
+
+  .chart-empty-state .empty-icon { font-size: 2rem; opacity: 0.5; }
+  .chart-empty-state p { font-family: 'DM Mono', monospace; font-size: 0.75rem; color: var(--muted); text-align: center; }
+  .chart-empty-state strong { color: #C0022F; }
+  .chart-empty-state.hidden { display: none; }
+
   /* ─── CHART PANELS ────────────────────────── */
   .chart-panel {
-    background: var(--panel);
-    border: 1px solid var(--border);
-    border-radius: 4px;
-    padding: 1.5rem 2rem;
+    background: transparent;
+    border: none;
+    padding: 0;
   }
 
   .chart-wrap {
@@ -581,6 +661,34 @@
     margin-top: 0.25rem;
   }
 
+  /* ─── KEY INSIGHTS LIST ─────────────────── */
+  .key-insights-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 0.75rem;
+  }
+
+  .ki-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    background: #faf6ef;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.9rem 1rem;
+    font-size: 0.83rem;
+    line-height: 1.5;
+    color: var(--ink);
+  }
+
+  .ki-item.ki-bullish { border-left: 4px solid #2d6a4f; }
+  .ki-item.ki-bearish { border-left: 4px solid #C0022F; }
+  .ki-item.ki-neutral { border-left: 4px solid var(--muted); }
+
+  .ki-bullet { color: var(--muted); font-size: 0.6rem; margin-top: 5px; flex-shrink: 0; }
+  .ki-item strong { color: var(--ink); }
+
   /* ─── TREND INSIGHT CARDS ────────────────── */
   .insights-grid {
     display: grid;
@@ -669,17 +777,20 @@
 
   /* ─── ERROR ──────────────────────────────── */
   .error-banner {
-    background: #fdf0ee;
-    border: 1px solid var(--rouge);
-    border-radius: 4px;
-    padding: 1rem 1.5rem;
-    font-family: 'DM Mono', monospace;
-    font-size: 0.78rem;
-    color: var(--rouge);
+    background: #fff5f5;
+    border: 1px solid #fca5a5;
+    border-left: 4px solid #C0022F;
+    border-radius: 6px;
+    padding: 0.9rem 1.25rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    color: #7f1d1d;
     display: none;
+    line-height: 1.5;
   }
 
   .error-banner.show { display: block; }
+  .error-banner::before { content: "⚠ "; font-weight: 700; color: #C0022F; }
 </style>
 </head>
 <body>
@@ -693,10 +804,9 @@
 <!-- HEADER -->
 <header>
   <div class="header-brand">
-    <h1>The <span>Lipstick</span> Index</h1>
+    <h1>The <span>Lipstick</span> Index<span class="kiss-mark">&#x1F48B;</span></h1>
     <div style="display:flex;flex-direction:column;gap:2px;">
       <span class="header-sub">Oil & Cosmetics Market Analysis</span>
-      <span class="header-sub" style="color:#5a5048;">Finance Dashboard · 5-Year Daily Data</span>
     </div>
   </div>
   <div class="header-right">
@@ -738,6 +848,14 @@
   </div>
 </div>
 
+<!-- HOW TO USE INTRO -->
+<div class="intro-banner">
+  <div class="intro-inner">
+    <span class="intro-icon">📖</span>
+    <p>This dashboard compares crude oil prices with cosmetics industry performance. Use the filters below to select your oil benchmark, cosmetics universe, and time period — then click <strong>Load Data</strong> to fetch live market data. Explore correlations, risk-return metrics, alpha &amp; beta, and trend insights across the full dashboard.</p>
+  </div>
+</div>
+
 <!-- MAIN -->
 <main>
 
@@ -759,7 +877,7 @@
         <option value="EL,COTY,IPAR,HELE,ELF">Diversified 5</option>
       </select>
     </div>
-    <div class="control-group">
+    <div class="control-group" style="display:none;" aria-hidden="true">
       <label>Custom Tickers (comma-separated)</label>
       <input type="text" id="custom-tickers" value="EL,ELF,COTY,ULTA,IPAR" readonly title="Cosmetics universe is fixed for this dashboard"/>
     </div>
@@ -782,9 +900,10 @@
   <div class="error-banner" id="error-banner"></div>
 
   <!-- KPI CARDS -->
-  <section id="kpi-section">
+  <section id="kpi-section" class="section-card">
     <div class="section-header">
-      <h2>Market Snapshot</h2>
+      <h2>Market Overview</h2>
+        <p class="section-desc">A quick snapshot of how oil and cosmetics stocks are moving right now.</p>
       <span class="section-meta">Latest Available Prices</span>
     </div>
     <div class="stats-grid" id="kpi-grid">
@@ -798,13 +917,15 @@
   </section>
 
   <!-- PRICE CHART -->
-  <section>
+  <section class="section-card">
     <div class="section-header">
       <h2>Normalized Price Performance</h2>
+        <p class="section-desc">Shows how each stock has grown or dropped compared to where it started — all indexed to 100 at the beginning of the selected period.</p>
       <span class="section-meta">Indexed to 100 at start of period · vs S&P 500 benchmark</span>
     </div>
     <div class="chart-panel">
-      <div class="chart-wrap" style="height:380px;">
+      <div class="chart-wrap" style="height:380px; position:relative;">
+        <div class="chart-empty-state" id="priceChart-empty"><div class="empty-icon">📈</div><p>Click <strong>Load Data</strong> to render chart</p></div>
         <canvas id="priceChart"></canvas>
       </div>
     </div>
@@ -812,24 +933,28 @@
 
   <!-- OIL VS COSMETICS -->
   <div class="two-col">
-    <section>
+    <section class="section-card">
       <div class="section-header">
         <h2>Oil Price Trend</h2>
+        <p class="section-desc">Day-to-day crude oil price movement with a smooth 90-day average to highlight the overall direction.</p>
         <span class="section-meta">Absolute price with 90-day SMA</span>
       </div>
       <div class="chart-panel">
-        <div class="chart-wrap" style="height:260px;">
+        <div class="chart-wrap" style="height:260px; position:relative;">
+          <div class="chart-empty-state" id="oilChart-empty"><div class="empty-icon">🛢️</div><p>Click <strong>Load Data</strong> to render chart</p></div>
           <canvas id="oilChart"></canvas>
         </div>
       </div>
     </section>
-    <section>
+    <section class="section-card">
       <div class="section-header">
         <h2>Rolling 90-Day Correlation</h2>
+        <p class="section-desc">Tracks how the relationship between oil prices and each cosmetics stock shifts over time. Values near +1 or −1 signal a strong link.</p>
         <span class="section-meta">Each stock vs crude oil</span>
       </div>
       <div class="chart-panel">
-        <div class="chart-wrap" style="height:260px;">
+        <div class="chart-wrap" style="height:260px; position:relative;">
+          <div class="chart-empty-state" id="corrChart-empty"><div class="empty-icon">🔗</div><p>Click <strong>Load Data</strong> to render chart</p></div>
           <canvas id="corrChart"></canvas>
         </div>
       </div>
@@ -837,7 +962,7 @@
   </div>
 
   <!-- ALPHA BETA TABLE -->
-  <section>
+  <section class="section-card">
     <div class="section-header">
       <h2>Alpha & Beta Analysis</h2>
       <span class="section-meta">vs S&P 500 · 5-year daily returns · CAPM regression</span>
@@ -870,20 +995,23 @@
 
   <!-- SCATTER: BETA vs OIL CORR -->
   <div class="two-col">
-    <section>
+    <section class="section-card">
       <div class="section-header">
-        <h2>Risk-Return Scatter</h2>
+        <h2>Risk &amp; Return Metrics</h2>
+        <p class="section-desc">Plots each asset by how much it bounces around (risk) vs. what you earn in return. Ideally you want to be upper-left — high return, low volatility.</p>
         <span class="section-meta">Annualized volatility vs annualized return</span>
       </div>
       <div class="chart-panel">
-        <div class="chart-wrap" style="height:280px;">
+        <div class="chart-wrap" style="height:280px; position:relative;">
+          <div class="chart-empty-state" id="scatterChart-empty"><div class="empty-icon">⚡</div><p>Click <strong>Load Data</strong> to render chart</p></div>
           <canvas id="scatterChart"></canvas>
         </div>
       </div>
     </section>
-    <section>
+    <section class="section-card">
       <div class="section-header">
         <h2>Oil Correlation Summary</h2>
+        <p class="section-desc">Full-period Pearson correlation between each cosmetics stock and crude oil daily returns.</p>
         <span class="section-meta">Full period Pearson correlation to oil returns</span>
       </div>
       <div class="chart-panel" id="corr-summary-panel">
@@ -895,10 +1023,25 @@
     </section>
   </div>
 
+  <!-- KEY INSIGHTS -->
+  <section class="section-card" id="key-insights-section">
+    <div class="section-header">
+      <h2>Key Insights</h2>
+      <p class="section-desc">The most important data-driven takeaways from the current dataset — updated each time you load data.</p>
+    </div>
+    <ul class="key-insights-list" id="key-insights-list">
+      <li class="ki-item ki-neutral"><span class="ki-bullet">◆</span><span><strong>Lipstick Index Theory:</strong> During economic downturns, consumers often trade down to affordable luxuries — cosmetics tend to hold up better than broader markets.</span></li>
+      <li class="ki-item ki-neutral"><span class="ki-bullet">◆</span><span><strong>Oil as a Cost Signal:</strong> Rising crude oil prices increase packaging and logistics costs for beauty companies, which can pressure margins.</span></li>
+      <li class="ki-item ki-neutral"><span class="ki-bullet">◆</span><span><strong>Alpha vs. Beta:</strong> A stock with positive alpha is outperforming the market on a risk-adjusted basis — a sign of strong fundamentals or competitive advantage.</span></li>
+      <li class="ki-item ki-neutral"><span class="ki-bullet">◆</span><span><strong>Load data above</strong> to replace these examples with live, computed insights from the selected period.</span></li>
+    </ul>
+  </section>
+
   <!-- TREND INSIGHTS -->
-  <section>
+  <section class="section-card">
     <div class="section-header">
       <h2>Trend Insights</h2>
+        <p class="section-desc">Plain-language takeaways based on the latest data — updated automatically each time you load new data.</p>
       <span class="section-meta">AI-generated observations based on loaded data</span>
     </div>
     <div class="insights-grid" id="insights-grid">
@@ -927,17 +1070,34 @@ const COMPANY_NAMES = {
   'CL=F': 'WTI Crude Oil', 'BZ=F': 'Brent Crude', USO: 'US Oil Fund',
 };
 
-// WCAG-AA accessible palette — distinct hue, luminance, AND dash pattern per series
-// Each color passes 4.5:1 contrast on the cream (#f5f0e8) background
+// Brand palette — per-ticker color assignments
 const PALETTE = [
-  '#1864ab', // [0] EL   — deep blue
-  '#2f9e44', // [1] ELF  — forest green
-  '#e67700', // [2] COTY — amber orange
-  '#9c36b5', // [3] ULTA — violet
-  '#c92a2a', // [4] IPAR — crimson red
-  '#1098ad', // [5] HELE — teal
-  '#5c3bc4', // [6] extra — indigo
+  '#ffc1cc', // [0] EL   — blush pink
+  '#ff5ca2', // [1] ELF  — hot pink
+  '#7b0a0a', // [2] COTY — deep crimson
+  '#9b4f80', // [3] ULTA — mauve purple
+  '#a67c7c', // [4] IPAR — dusty rose
+  '#5c3bc4', // [5] HELE — indigo (fallback)
+  '#1098ad', // [6] extra — teal (fallback)
 ];
+
+// Symbol-keyed color map for deterministic assignment
+const SYM_COLORS = {
+  SPY:  '#597a32',
+  'CL=F': '#838383',
+  'BZ=F': '#838383',
+  USO:  '#838383',
+  EL:   '#ffc1cc',
+  ELF:  '#ff5ca2',
+  COTY: '#7b0a0a',
+  ULTA: '#9b4f80',
+  IPAR: '#a67c7c',
+  HELE: '#5c3bc4',
+};
+
+function symColor(sym, fallbackIdx) {
+  return SYM_COLORS[sym] || PALETTE[fallbackIdx % PALETTE.length];
+}
 
 // Per-series dash patterns for accessibility (colorblind-safe double encoding)
 const DASH_PATTERNS = [
@@ -1036,7 +1196,7 @@ function parseStooqCSV(text, sym) {
     const parts = dateStr.split('-');
     data.push({ date: new Date(+parts[0], +parts[1]-1, +parts[2]), close });
   }
-  if (data.length < 3) throw new Error(`only ${data.length} rows`);
+  if (data.length < 1) throw new Error(`only ${data.length} rows`);
   return data;
 }
 
@@ -1057,7 +1217,7 @@ function parseYahooJSON(text) {
     if (closes[i] != null && closes[i] > 0)
       data.push({ date: new Date(timestamps[i] * 1000), close: closes[i] });
   }
-  if (data.length < 3) throw new Error(`only ${data.length} points`);
+  if (data.length < 1) throw new Error(`only ${data.length} points`);
   return data;
 }
 
@@ -1271,6 +1431,7 @@ function renderAll(){
   renderAlphaBetaTable(fetched, oilTicker, cosmetics);
   renderScatterChart(fetched, cosmetics);
   renderCorrSummary(fetched, oilTicker, cosmetics);
+  renderKeyInsights(fetched, oilTicker, cosmetics);
   renderInsights(fetched, oilTicker, cosmetics);
   updateTickerBar(fetched, oilTicker, cosmetics);
   document.getElementById('last-updated').textContent = 'Updated: '+new Date().toLocaleString();
@@ -1284,22 +1445,25 @@ function renderKPIs(fetched, oilTicker, cosmetics){
   const syms = [oilTicker, 'SPY', ...cosmetics];
   syms.forEach(sym => {
     const d = fetched[sym];
-    if(!d||d.length<2) return;
+    if(!d || d.length < 1) return;
     const last = d[d.length-1].close;
-    const prev = d[d.length-2].close;
-    const chg = (last-prev)/prev*100;
+    const prev = d.length >= 2 ? d[d.length-2].close : last;
+    const chg = d.length >= 2 ? (last-prev)/prev*100 : 0;
     const start = d[0].close;
-    const total = (last-start)/start*100;
+    const total = start > 0 ? (last-start)/start*100 : 0;
     const isOil = sym===oilTicker;
     const isSPY = sym==='SPY';
+    const label = isOil ? `${sym} · OIL` : isSPY ? `${sym} · BENCHMARK` : `${sym} · COSMETICS`;
+    const prefix = isOil ? '$' : '';
 
     const card = document.createElement('div');
     card.className = `stat-card ${chg>=0?'positive':'negative'}`;
     card.innerHTML = `
-      <div class="stat-label">${sym}${isOil?' · OIL':isSPY?' · BENCHMARK':' · COSMETICS'}</div>
-      <div class="stat-value">${isOil?'$':'' }${last.toFixed(isOil?2:2)}</div>
-      <div class="stat-change ${chg>=0?'pos':'neg'}">${fmtPct(chg)} today</div>
-      <div class="stat-change" style="color:var(--muted);font-size:0.68rem;margin-top:2px;">${fmtPct(total)} total return</div>
+      <div class="stat-label">${label}</div>
+      <div style="font-size:0.65rem;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:0.25rem;">${COMPANY_NAMES[sym]||''}</div>
+      <div class="stat-value">${prefix}${last.toFixed(2)}</div>
+      <div class="stat-change ${chg>=0?'pos':'neg'}">${d.length>=2?fmtPct(chg)+' today':'—'}</div>
+      <div class="stat-change" style="color:var(--muted);font-size:0.68rem;margin-top:2px;">${d.length>=2?fmtPct(total)+' total return':'Single data point'}</div>
     `;
     grid.appendChild(card);
   });
@@ -1309,36 +1473,34 @@ function renderKPIs(fetched, oilTicker, cosmetics){
 function renderPriceChart(fetched, oilTicker, cosmetics){
   const syms = ['SPY', oilTicker, ...cosmetics];
   const datasets = [];
-  const seriesMap = {}; // sym -> {startPrice, latestPrice, color}
   let cosIdx = 0;
 
   syms.forEach((sym, i) => {
     const d = fetched[sym];
-    if(!d || d.length < 2) return;
+    if(!d || d.length < 1) return;
     const norm = normalizeToBase100(d.map(x => x.close));
     const isSPY = sym === 'SPY';
     const isOil = sym === oilTicker;
-    const color = isSPY ? '#5c5c5c' : isOil ? '#e67700' : PALETTE[cosIdx];
-    const dash  = isSPY ? [8,4] : isOil ? [4,3] : DASH_PATTERNS[cosIdx % DASH_PATTERNS.length];
-    const ps    = isSPY ? 'rectRot' : isOil ? 'triangle' : POINT_STYLES[cosIdx % POINT_STYLES.length];
+    const color = symColor(sym, cosIdx);
+    // SPY: solid thicker; Oil: dashed (different asset class); cosmetics: solid
+    const dash = isOil ? [6, 3] : [];
+    const width = isSPY ? 2.5 : isOil ? 2 : 2;
     if (!isSPY && !isOil) cosIdx++;
-
-    seriesMap[sym] = { color, startPrice: d[0].close, latestPrice: d[d.length-1].close };
 
     datasets.push({
       label: sym,
       data: d.map((x, j) => ({ x: x.date, y: norm[j] })),
       borderColor: color,
-      backgroundColor: color + '18',
-      borderWidth: isSPY ? 2 : isOil ? 2.5 : 2,
+      backgroundColor: 'transparent',
+      borderWidth: width,
       borderDash: dash,
       pointRadius: 0,
-      pointHoverRadius: 6,
+      pointHoverRadius: 5,
       pointHoverBackgroundColor: color,
       pointHoverBorderColor: '#fff',
       pointHoverBorderWidth: 2,
-      pointStyle: ps,
-      tension: 0.2,
+      pointStyle: 'line',
+      tension: 0.3,
       fill: false,
     });
   });
@@ -1355,14 +1517,17 @@ function renderPriceChart(fetched, oilTicker, cosmetics){
           display: true, position: 'top',
           labels: {
             font: { family: 'DM Mono', size: 11 }, color: '#1a1410',
-            usePointStyle: true, pointStyleWidth: 14, padding: 18,
+            usePointStyle: false,
+            boxWidth: 24,
+            boxHeight: 2,
+            padding: 20,
             generateLabels: chart => chart.data.datasets.map((ds, i) => ({
               text: ds.label,
               fillStyle: ds.borderColor,
               strokeStyle: ds.borderColor,
-              lineWidth: 2,
+              lineWidth: ds.borderWidth,
               lineDash: ds.borderDash,
-              pointStyle: ds.pointStyle,
+              pointStyle: 'line',
               hidden: !chart.isDatasetVisible(i),
               datasetIndex: i,
             }))
@@ -1385,22 +1550,19 @@ function renderPriceChart(fetched, oilTicker, cosmetics){
             },
             label: item => {
               const sym = item.dataset.label;
-              const idx = item.dataIndex;
               const val = item.parsed.y;
-              const meta = COMPANY_META[sym] || {};
               const totalRet = (val - 100).toFixed(1);
               const sign = totalRet >= 0 ? '+' : '';
               return `  ${sym}  ${val.toFixed(1)}  (${sign}${totalRet}% vs start)`;
             },
             afterLabel: item => {
-              const sym = item.dataset.label;
-              const meta = COMPANY_META[sym];
+              const meta = COMPANY_META[item.dataset.label];
               return meta ? `  ${meta.role}` : '';
             },
             afterBody: items => {
               if (items.length < 2) return [];
               const vals = items.map(i => i.parsed.y);
-              const best = items[vals.indexOf(Math.max(...vals))].dataset.label;
+              const best  = items[vals.indexOf(Math.max(...vals))].dataset.label;
               const worst = items[vals.indexOf(Math.min(...vals))].dataset.label;
               return ['', `  Best:  ${best}`, `  Worst: ${worst}`];
             }
@@ -1421,6 +1583,7 @@ function renderPriceChart(fetched, oilTicker, cosmetics){
       }
     }
   });
+  const pe = document.getElementById('priceChart-empty'); if(pe) pe.classList.add('hidden');
 }
 
 /* ─── OIL PRICE CHART ────────────────────── */
@@ -1439,12 +1602,12 @@ function renderOilChart(fetched, oilTicker){
         {
           label: 'Daily Close',
           data: d.map((x, i) => ({ x: x.date, y: x.close })),
-          borderColor: '#e67700',
-          backgroundColor: '#e6770018',
+          borderColor: symColor(oilTicker, 0),
+          backgroundColor: symColor(oilTicker, 0) + '22',
           borderWidth: 2,
           pointRadius: 0,
           pointHoverRadius: 6,
-          pointHoverBackgroundColor: '#e67700',
+          pointHoverBackgroundColor: symColor(oilTicker, 0),
           pointHoverBorderColor: '#fff',
           pointHoverBorderWidth: 2,
           fill: true, tension: 0.1,
@@ -1519,6 +1682,7 @@ function renderOilChart(fetched, oilTicker){
       }
     }
   });
+  const oe = document.getElementById('oilChart-empty'); if(oe) oe.classList.add('hidden');
 }
 
 /* ─── ROLLING CORR CHART ─────────────────── */
@@ -1532,7 +1696,7 @@ function renderCorrChart(fetched, oilTicker, cosmetics){
     const {retA: retOil, retB: retStock, keys} = alignedReturns(oilData, d);
     const rolling = rollingCorrelation(retOil, retStock, 90);
     const startIdx = keys.length - rolling.length;
-    const color = PALETTE[i % PALETTE.length];
+    const color = symColor(sym, i);
     const dash  = DASH_PATTERNS[i % DASH_PATTERNS.length];
     const ps    = POINT_STYLES[i % POINT_STYLES.length];
 
@@ -1637,6 +1801,7 @@ function renderCorrChart(fetched, oilTicker, cosmetics){
       }
     }
   });
+  const ce = document.getElementById('corrChart-empty'); if(ce) ce.classList.add('hidden');
 }
 
 /* ─── ALPHA BETA TABLE ───────────────────── */
@@ -1717,7 +1882,7 @@ function renderScatterChart(fetched, cosmetics){
     const ret = (Math.pow(1 + mean(retStock), 252) - 1) * 100;
     const {alpha, beta} = linearRegression(retSPY, retStock);
     const isSPY = sym === 'SPY';
-    const color = isSPY ? '#5c5c5c' : PALETTE[cosIdx % PALETTE.length];
+    const color = symColor(sym, cosIdx);
     const ps    = isSPY ? 'rectRot' : POINT_STYLES[cosIdx % POINT_STYLES.length];
     if (!isSPY) cosIdx++;
 
@@ -1803,6 +1968,7 @@ function renderScatterChart(fetched, cosmetics){
       }
     }
   });
+  const se = document.getElementById('scatterChart-empty'); if(se) se.classList.add('hidden');
 }
 
 /* ─── CORR SUMMARY CARDS ─────────────────── */
@@ -1847,6 +2013,89 @@ function appendCorrCard(grid,sym,c){
     <div class="corr-label">${label}</div>
   `;
   grid.appendChild(card);
+}
+
+/* ─── KEY INSIGHTS ──────────────────────── */
+function renderKeyInsights(fetched, oilTicker, cosmetics) {
+  const list = document.getElementById('key-insights-list');
+  if (!list) return;
+  const spy = fetched['SPY'];
+  const oil = fetched[oilTicker];
+  const insights = [];
+
+  // Best performer
+  const allSyms = [...cosmetics, 'SPY'];
+  let bestSym = null, bestRet = -Infinity, worstSym = null, worstRet = Infinity;
+  allSyms.forEach(sym => {
+    const d = fetched[sym];
+    if (!d || d.length < 2) return;
+    const ret = (d[d.length-1].close / d[0].close - 1) * 100;
+    if (ret > bestRet) { bestRet = ret; bestSym = sym; }
+    if (ret < worstRet) { worstRet = ret; worstSym = sym; }
+  });
+  if (bestSym) {
+    const sign = bestRet >= 0 ? '+' : '';
+    insights.push({ cls: 'ki-bullish', text: `<strong>Top Performer:</strong> ${COMPANY_NAMES[bestSym]||bestSym} (${bestSym}) leads the selected period with a ${sign}${bestRet.toFixed(1)}% return.` });
+  }
+  if (worstSym && worstSym !== bestSym) {
+    const sign = worstRet >= 0 ? '+' : '';
+    insights.push({ cls: 'ki-bearish', text: `<strong>Laggard:</strong> ${COMPANY_NAMES[worstSym]||worstSym} (${worstSym}) trails the group with ${sign}${worstRet.toFixed(1)}% over the same period.` });
+  }
+
+  // Oil trend
+  if (oil && oil.length > 30) {
+    const closes = oil.map(x => x.close);
+    const recent = closes.slice(-Math.min(30, Math.floor(closes.length/2)));
+    const earlier = closes.slice(0, Math.min(30, Math.floor(closes.length/2)));
+    const trend = (mean(recent) - mean(earlier)) / mean(earlier) * 100;
+    const dir = trend > 3 ? 'rising' : trend < -3 ? 'falling' : 'relatively stable';
+    const cls = trend > 3 ? 'ki-bearish' : trend < -3 ? 'ki-bullish' : 'ki-neutral';
+    insights.push({ cls, text: `<strong>Oil Signal:</strong> Crude prices are ${dir} over this period (${trend >= 0 ? '+' : ''}${trend.toFixed(1)}%). ${trend > 3 ? 'Rising input costs may pressure cosmetics margins.' : trend < -3 ? 'Lower oil reduces costs for packaging and logistics.' : 'Stable oil creates a predictable cost environment for beauty firms.'}` });
+  }
+
+  // Alpha leader vs SPY
+  if (spy) {
+    let bestAlphaSym = null, bestAlpha = -Infinity;
+    cosmetics.forEach(sym => {
+      const d = fetched[sym];
+      if (!d || d.length < 20) return;
+      const {retA, retB} = alignedReturns(spy, d);
+      const {alpha} = linearRegression(retA, retB);
+      if (alpha > bestAlpha) { bestAlpha = alpha; bestAlphaSym = sym; }
+    });
+    if (bestAlphaSym) {
+      const annA = (bestAlpha * 252 * 100).toFixed(2);
+      const cls = bestAlpha > 0 ? 'ki-bullish' : 'ki-bearish';
+      insights.push({ cls, text: `<strong>Alpha Leader:</strong> ${COMPANY_NAMES[bestAlphaSym]||bestAlphaSym} generates the highest risk-adjusted excess return vs. S&P 500 (${annA > 0 ? '+' : ''}${annA}%/yr annualized alpha).` });
+    }
+  }
+
+  // Oil correlation signal
+  if (oil) {
+    const corrs = [];
+    cosmetics.forEach(sym => {
+      const d = fetched[sym];
+      if (!d || d.length < 10) return;
+      const {retA, retB} = alignedReturns(oil, d);
+      if (retA.length > 5) corrs.push({ sym, r: pearsonCorr(retA, retB) });
+    });
+    corrs.sort((a,b) => Math.abs(b.r) - Math.abs(a.r));
+    if (corrs.length) {
+      const top = corrs[0];
+      const dir = top.r > 0 ? 'moves with' : 'moves against';
+      const cls = top.r < -0.3 ? 'ki-bullish' : top.r > 0.3 ? 'ki-bearish' : 'ki-neutral';
+      insights.push({ cls, text: `<strong>Oil Sensitivity:</strong> ${COMPANY_NAMES[top.sym]||top.sym} ${dir} crude oil most strongly (r = ${top.r.toFixed(3)}). ${top.r < -0.3 ? 'Negative correlation is consistent with the Lipstick Effect — consumers shift spending when energy costs rise.' : 'Positive correlation suggests cost sensitivity to oil price moves.'}` });
+    }
+  }
+
+  // Fallback if nothing computed
+  if (insights.length === 0) {
+    insights.push({ cls: 'ki-neutral', text: '<strong>Data loaded</strong> — not enough history in this period to compute insights. Try a longer timeframe.' });
+  }
+
+  list.innerHTML = insights.map(ins =>
+    `<li class="ki-item ${ins.cls}"><span class="ki-bullet">◆</span><span>${ins.text}</span></li>`
+  ).join('');
 }
 
 /* ─── INSIGHTS ───────────────────────────── */
@@ -1987,13 +2236,13 @@ const NEWS_HEADLINES = [
     url:'https://www.eia.gov/petroleum/supply/weekly/' },
   { tag:'GEO',  cls:'geo',
     text:'Russia-Ukraine ceasefire talks stall; European gas futures spike on renewed supply anxiety',
-    url:'https://www.ft.com/search?q=russia+ukraine+energy+gas+futures' },
+    url:'https://apnews.com/hub/russia-ukraine' },
   { tag:'RISK', cls:'risk',
     text:'Iran nuclear negotiations collapse; analysts warn of potential Strait of Hormuz disruption',
-    url:'https://www.wsj.com/search?query=iran+strait+of+hormuz+oil' },
+    url:'https://oilprice.com/geopolitics/middle-east/' },
   { tag:'OPEC', cls:'opec',
     text:'Saudi Aramco reports record quarterly earnings; kingdom raises OSP for Asia-bound crude',
-    url:'https://www.bloomberg.com/search?query=saudi+aramco+earnings+OSP' },
+    url:'https://www.spglobal.com/commodityinsights/en/market-insights/topics/opec' },
   { tag:'TRADE',cls:'trade',
     text:'China stimulus package lifts crude demand forecast; IEA revises 2025 consumption outlook upward 400k bbl/day',
     url:'https://www.iea.org/topics/oil-market-report' },
@@ -2014,7 +2263,7 @@ const NEWS_HEADLINES = [
     url:'https://www.reuters.com/business/energy/venezuela-sanctions-chevron-oil/' },
   { tag:'TRADE',cls:'trade',
     text:'India overtakes China as fastest-growing crude importer; refiners boost Middle East spot purchases',
-    url:'https://www.bloomberg.com/search?query=india+crude+oil+imports+refinery' },
+    url:'https://oilprice.com/energy/crude-oil/' },
   { tag:'ECON', cls:'econ',
     text:'Global freight rates surge 40% YoY as Panama Canal drought forces longer Cape routes',
     url:'https://www.freightos.com/freight-resources/panama-canal-drought-shipping/' },
@@ -2023,16 +2272,16 @@ const NEWS_HEADLINES = [
     url:'https://www.reuters.com/business/energy/libya-oil-noc-sharara/' },
   { tag:'GEO',  cls:'geo',
     text:'G7 price cap on Russian oil under review; compliance gaps widen as shadow fleet grows to 600+ vessels',
-    url:'https://www.ft.com/search?q=russian+oil+price+cap+shadow+fleet' },
+    url:'https://news.google.com/search?q=russian+oil+price+cap+shadow+fleet&hl=en-US&gl=US&ceid=US:en' },
   { tag:'TRADE',cls:'trade',
     text:'LNG spot prices fall to 3-year lows in Europe; mild winter reduces storage drawdowns across EU',
-    url:'https://www.icis.com/explore/resources/news/lng-europe-prices/' },
+    url:'https://www.reuters.com/business/energy/' },
   { tag:'OPEC', cls:'opec',
     text:'Kazakhstan exceeds OPEC+ quota for third straight month; cartel threatens compensatory cuts',
     url:'https://www.reuters.com/business/energy/kazakhstan-opec-quota-overproduction/' },
   { tag:'ECON', cls:'econ',
     text:'EV adoption accelerates in China; long-term oil demand growth forecasts trimmed by Goldman Sachs',
-    url:'https://www.bloomberg.com/search?query=china+ev+adoption+oil+demand+goldman+sachs' },
+    url:'https://news.google.com/search?q=china+ev+adoption+oil+demand+forecast&hl=en-US&gl=US&ceid=US:en' },
   { tag:'RISK', cls:'risk',
     text:'Tropical storm threatens Gulf of Mexico platforms; operators begin precautionary rig evacuations',
     url:'https://www.nhc.noaa.gov/' },
@@ -2047,7 +2296,7 @@ const NEWS_HEADLINES = [
     url:'https://www.eia.gov/petroleum/drilling/' },
   { tag:'RISK', cls:'risk',
     text:'Cybersecurity breach at major European pipeline operator triggers emergency response protocols',
-    url:'https://www.ft.com/search?q=pipeline+cybersecurity+energy+infrastructure' },
+    url:'https://news.google.com/search?q=pipeline+cybersecurity+energy+infrastructure&hl=en-US&gl=US&ceid=US:en' },
   { tag:'GEO',  cls:'geo',
     text:'Sudan conflict threatens Red Sea transit security; Egypt raises Suez Canal tolls for oil tankers',
     url:'https://www.reuters.com/world/africa/sudan-red-sea-suez-canal-oil-tankers/' },
@@ -2068,6 +2317,13 @@ function buildNewsTicker() {
 }
 
 buildNewsTicker();
+
+// ── AUTO-PRELOAD ─────────────────────────────
+// Load default 1-week data automatically so dashboard feels instant
+window.addEventListener('DOMContentLoaded', () => {
+  // Small delay so the page renders first
+  setTimeout(() => loadAllData(), 600);
+});
 </script>
 </body>
 </html>
